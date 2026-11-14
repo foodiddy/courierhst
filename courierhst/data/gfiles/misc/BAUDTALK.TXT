@@ -1,0 +1,40 @@
+                    A FIELD GUIDE TO MODEM SPEED
+                    ----------------------------
+
+  300 baud    "The tortoise." You can read faster than the text appears.
+              Seen only in museums and in your uncle's stories.
+
+  1200 baud   "The jogger." Getting there, slowly, with a lot of heavy
+              breathing. Good for plain text and patience.
+
+  2400 baud   "The commuter." Everyone has one. Nobody loves it. Downloads
+              a small game in the time it takes to eat lunch.
+
+  9600 baud   "The sports car." Costs a lot. Looks good in the driveway.
+              Needs a good phone line, or it falls back to 2400 in shame.
+
+  14400 baud  "The rocket." The speed you want. The speed your mom does
+              not understand. Fast enough that you notice the line noise.
+
+  16800 baud  "The rumour." HST Dual Standard from USR. Fast one way, and
+              ok the other way. Only a few boards have it.
+
+  28800 baud  "The legend." People say it exists. People say it will be
+              here next year. Nobody has seen one at a copy party yet.
+
+  WHAT THE LIGHTS MEAN
+  --------------------
+    HS ... High speed. The modem is happy.
+    AA ... Auto answer. Waiting for a call.
+    CD ... Carrier detect. Someone is out there.
+    OH ... Off hook. The line is in use. Do not pick up the phone!
+    RD/SD  Receive data and send data. Twinkle, twinkle, little light.
+
+  THE THREE LAWS OF MODEM LIFE
+  ----------------------------
+    1. No matter how fast your modem, the other end is always slower.
+    2. The line will drop at 99% of a download. Always. It is a law.
+    3. Call waiting is the enemy. Ask the phone company how to switch it
+       off, and tell your family not to pick up. They will anyway.
+
+  Now go forth and connect. Say hi to the sysop.

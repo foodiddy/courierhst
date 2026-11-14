@@ -1,0 +1,57 @@
+                       THE FILE_ID.DIZ EXPLAINER
+                       =========================
+
+  Ever wonder what that little FILE_ID.DIZ is that shows up inside every
+  archive? It is a "description in a box". Your BBS software unzips it when
+  the file is uploaded and uses it as the file listing text. No more typing
+  "game that is good" at 2am while the timer ticks down.
+
+  THE RULES (they are stricter than you think)
+  --------------------------------------------
+    * 45 columns wide at the very most
+    * 10 lines tall at the very most
+    * plain ASCII, no ANSi, no pipe codes
+    * name must be FILE_ID.DIZ, all caps, inside the archive root
+
+  SAMPLE 1: A GAME RELEASE
+  ------------------------
+    +-------------------------------------------+
+    | STARLANE TRADER v2.0     (c) Moonbase SW  |
+    | [1/3] -=- STATiC -=-   Space Trading      |
+    | Supplied by Null Pointer                  |
+    | Doc check removed                         |
+    +-------------------------------------------+
+
+  SAMPLE 2: A UTILITY
+  -------------------
+    +-------------------------------------------+
+    | ZIPVIEW 3.1 - Browse inside ZIP files     |
+    | without unpacking them. Fast, tiny, and   |
+    | works from any batch file. Shareware.     |
+    +-------------------------------------------+
+
+  SAMPLE 3: AN ART PACK
+  ---------------------
+    +-------------------------------------------+
+    | NOiR ANSi PACK #12  - 22 new pieces       |
+    | Includes logos, menus, and one very large |
+    | dragon. Viewer included. Please enjoy.    |
+    +-------------------------------------------+
+
+  COMMON MISTAKES
+  ---------------
+    - Making the DIZ 80 columns wide. It wraps. It looks awful.
+    - Leaving in the line "PLEASE UPLOAD ME TO OTHER BOARDS". Nobody cares.
+    - Putting 40 greetings in the DIZ. That is what the NFO is for.
+    - Forgetting the part count: [1/3] tells people they need all three.
+
+  A GOOD DIZ HAS THREE JOBS
+  -------------------------
+    1. Say what it is.
+    2. Say who made or released it.
+    3. Say how many pieces you need.
+
+  Thats it. Put one in every archive and sysops will love you. Skip it and
+  you get a file called "UNKNOWN.ZIP - description missing" forever.
+
+                                    -- compiled by Sector 7 / STATiC, 1993

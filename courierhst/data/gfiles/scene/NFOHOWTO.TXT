@@ -1,0 +1,57 @@
+ ____________________________________________________________________________ 
+|                                                                            |
+|  _  _ ___ ___    _  _  _____      _____                                    |
+| | \| | __/ _ \  | || |/ _ \ \    / /_ _|                                   |
+| | .` | _| (_) | | __ | (_) \ \/\/ / | |   A TEMPLATE FOR THE MASSES        |
+| |_|\_|_| \___/  |_||_|\___/ \_/\_/ |___|                                   |
+|____________________________________________________________________________|
+
+  So you started a group and you want a release NFO that doesnt look like it
+  was typed by a cat. Copy this layout, swap in your own names, and ship it.
+  (All the names below are made up. If you are in here, its a coincidence.)
+
+  .--------------------------------------------------------------------------.
+  |  GROUP.......: STATiC                     DATE......: 07-14-93           |
+  |  RELEASE.....: Starlane Trader v2.0       FORMAT....: 3 x 1.44MB         |
+  |  SUPPLIER....: Null Pointer               CRACKER...: Paperclip          |
+  |  PACKER......: MaxBaud                    NOTES.....: Plays fine on 386  |
+  `--------------------------------------------------------------------------'
+
+  GROUP ROSTER
+  ------------
+    Count Zer0 ........ Founder / Coder      (Phoenix, AZ)
+    The Archivist ..... Supplier             (Duluth, MN)
+    Sector 7 .......... Courier              (Tampa, FL)
+    Carrier Lost ...... Courier              (Boise, ID)
+    Doc Holiday ....... Artist / ANSi        (Austin, TX)
+
+  INSTALL NOTES
+  -------------
+    Unzip all disks into one empty directory. Run INSTALL.EXE. Do NOT run it
+    from inside a Windows DOS box, it hates that. Read the manual lookup
+    table at the bottom of this file if you somehow lost your manual.
+
+  GREETINGS TO
+  ------------
+    NEURAL FLUX, HYPERiON, OBSiDiAN, ZEPHYR, VELVET CODE, and every sysop who
+    ever validated us in the middle of the night.
+
+  HOW TO JOIN
+  -----------
+    We are NOT looking for lamers. We ARE looking for:
+      * Suppliers with real access to new stuff (honest, legal-ish, boring)
+      * Couriers with HST or v.32bis and a board that is not busy all night
+      * Artists. Good ones. We have no ANSi guy since Doc moved.
+      * Coders who can finish a project.
+
+    Leave feedback to Count Zer0 at The Silent Archive, 555-0142, node 2.
+    Say what you can do. Do not say what you WILL do. Big difference.
+
+  RULES OF THE GROUP
+  ------------------
+    1. Dont brag about stuff you did not do.
+    2. Dont spam message bases. One post, one board.
+    3. Credit everybody in the NFO, even the guy who only found the typo.
+    4. When in doubt, ask the founder. When founder is wrong, ask nicely.
+
+  Another fine product of STATiC. Keep it real, keep it 14.4.

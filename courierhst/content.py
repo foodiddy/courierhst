@@ -114,6 +114,7 @@ DOORS = [
 MSG_BASES = [
     "General Chit-Chat", "Warez Requests", "Courier Lounge", "Releases/NFOs",
     "Hardware Swap Meet", "ANSi/Art Scene", "Sysop Feedback", "Phun & Games",
+    "Scene Chatter",
 ]
 
 FILE_AREAS = [
@@ -340,6 +341,112 @@ def message(rng, bbs):
         "date": date93(rng).replace("-", "/"),
         "time": f"{rng.randint(1, 12):02d}:{rng.randint(0, 59):02d}{rng.choice('ap')}",
         "tag": rng.choice(TAGLINES) if rng.random() < 0.6 else None,
+    }
+
+
+# Early/mid-80s capture voice: ALL CAPS, run-ons, "ph" for "f", begging for
+# posts, board up/down drama.  Phone numbers are 555-01xx only.
+_SCENE_TEMPLATES = [
+    ("NEW BOARD UP!!!", [
+        "HEY EVERYBODY MY NEW BOARD IS UP AND RUNNING 24 HRS A DAY NO RATIOS",
+        "NO LAMERS JUST CALL 555-01{n1:02d} AND LEAVE ME MAIL IF YOU WANT",
+        "VALIDATED RIGHT AWAY. 300/1200 ONLY SO DONT BOTHER WITH YOUR PHANCY",
+        "NEW MODEM. SEND E-MAIL TO ==>{handle}<== PHOR MORE INFO",
+    ]),
+    ("POST PEOPLE POST!!!", [
+        "THIS BASE IS DEAD. WHERE IS EVERYBODY? I HAVE BEEN CHECKING EVERY",
+        "NITE PHOR A WEEK AND THERE ARE 3 MESSAGES AND 2 OF THEM ARE MINE.",
+        "COME ON PEOPLE POST SOMETHING ANYTHING I DONT CARE IF ITS ABOUT",
+        "YOUR CAT. SEND E-MAIL TO ==>{handle}<== IF YOU ARE STILL ALIVE",
+    ]),
+    ("!!!! {group} PRESENTS !!!!", [
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "!!                                                      !!",
+        "!!    {group:<30}PRESENTS:   !!",
+        "!!    {game:<44}!!",
+        "!!                                                      !!",
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "PHIRST ON THE WEST COAST. CALL 555-01{n1:02d} PHOR MORE.",
+    ]),
+    ("BOARD DOWN AGAIN", [
+        "SORRY PHOLKS THE BOARD WAS DOWN PHOR THREE DAYS MY HARD DRIVE",
+        "DIED AND THEN MY MOM UNPLUGGED EVERYTHING TO VACUUM AND I HAD TO",
+        "REBUILD THE USER LIST BY HAND. IF YOU WERE VALIDATED BEPHORE",
+        "JUST RE-REGISTER AND I WILL BUMP YOU BACK UP. SORRY SORRY SORRY",
+    ]),
+    ("TRADING BOARD NUMBERS", [
+        "OK HERE ARE SOME BOARDS I LIKE. CALL THEM AT YOUR OWN RISK:",
+        "",
+        "    {bbs:<28} 555-01{n1:02d}   300/1200",
+        "    THE DUNGEON PHILE         555-01{n2:02d}   1200 ONLY",
+        "    MODEM MADNESS             555-01{n3:02d}   300/1200/2400",
+        "",
+        "SEND ME YOURS IN RETURN. LOCAL ONLY PLEASE I AM NOT RICH",
+    ]),
+    ("NEW WAREZ!!!", [
+        "JUST GOT {game} IN THE MAIL",
+        "FROM A PHRIEND AND ITS PHAT! 3 DISKS AND A MANUAL THAT SMELLS LIKE",
+        "SMOKE. WILL TRADE PHOR ANYTHING NEW.",
+        "NO LAMERS. NO CALLING AFTER MIDNITE, MY DAD IS A LIGHT SLEEPER.",
+        "SEND E-MAIL TO ==>{handle}<== AND TELL ME WHAT YOU HAVE",
+    ]),
+    ("PHONE BILL BLUES", [
+        "WELL THE PHONE BILL CAME AND ITS ${money}. MY DAD SAYS NO MORE",
+        "MODEM TIL I PAY HIM BACK. I HAVE TO MOW LAWNS ALL SUMMER SO IF YOU",
+        "SEE ME ONLINE LESS THATS WHY. PHONE COMPANY IS EVIL!!!",
+        "KEEP THE BOARD ALIVE PHOR ME. ==>{handle}<==",
+    ]),
+    ("PHUN WITH MODEMS", [
+        "HAD THE BEST PHUN LAST NITE. 6 PEOPLE ON THE CONFERENCE AND WE",
+        "TYPED PHOR 4 HOURS ABOUT NOTHING. SOMEBODY DID A PHAKE SYSOP",
+        "IMPERSONATION AND IT WAS HILARIOUS. THIS IS WHY I LOVE THE HOBBY.",
+        "SEND E-MAIL TO ==>{handle}<== IF YOU WANT IN NEXT TIME",
+    ]),
+    ("RE: ANYONE OUT THERE??", [
+        "YES I AM HERE!!! I HAVE BEEN CALLING THE BOARD EVERY DAY AND ITS",
+        "BUSY UNTIL 2AM BUT I PINALLY GOT THROUGH. WHO ELSE IS ON THIS",
+        "BOARD? LETS START A CLUB OR SOMETHING. I CAN BRING THE SNACKS.",
+        "- {handle}",
+    ]),
+    ("{group} MEMBERS WANTED", [
+        "{group} IS LOOKING PHOR A COUPLE OF NEW MEMBERS. MUST HAVE A",
+        "300 OR 1200 BAUD MODEM AND BE ONLINE AT LEAST 3 NITES A WEEK.",
+        "MUST BE ABLE TO SPELL (THIS EXCLUDES ME). LEAVE A MESSAGE PHOR",
+        "==>{handle}<== AND TELL ME WHAT YOU CAN DO.",
+    ]),
+    ("PHONE LINE TROUBLES", [
+        "THE LINE WAS NOISY AGAIN LAST NITE AND I KEPT GETTING DROPPED IN",
+        "THE MIDDLE OF A DOWNLOAD. IT IS ALWAYS RIGHT AT 98 PERCENT. WHO",
+        "MADE THAT RULE? CALL ME IF YOU HAVE ANY IDEAS: 555-01{n1:02d}.",
+        "THANKS, ==>{handle}<==",
+    ]),
+]
+
+SCENE_TAGS = [
+    "*** PHREEDOM THROUGH PHUN ***",
+    "--- 300 BAUD OR BUST ---",
+    "**** BOARD UP 24 HRS ****",
+    "!!!! KEEP IT PHUN !!!!",
+]
+
+
+def scene_message(rng, bbs):
+    """Like message(), but in the early/mid-80s capture voice."""
+    ctx = message_context(rng, bbs)
+    ctx.update(n1=rng.randint(0, 99), n2=rng.randint(0, 99),
+               n3=rng.randint(0, 99))
+    ctx["game"] = ctx["game"].upper()
+    ctx["bbs"] = ctx["bbs"].upper()
+    ctx["group"] = ctx["group"].upper()
+    subj, body = rng.choice(_SCENE_TEMPLATES)
+    return {
+        "from": handle(rng),
+        "to": rng.choice(["ALL", "ALL", "ALL", "SYSOP", handle(rng)]),
+        "subj": fill(subj, ctx),
+        "body": [fill(b, ctx) for b in body],
+        "date": f"{rng.randint(1, 12):02d}/{rng.randint(1, 28):02d}/{rng.choice([83, 84, 84, 85])}",
+        "time": f"{rng.randint(1, 12):02d}:{rng.randint(0, 59):02d}{rng.choice('ap')}",
+        "tag": rng.choice(SCENE_TAGS) if rng.random() < 0.6 else None,
     }
 
 
