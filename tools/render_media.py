@@ -378,8 +378,10 @@ register("goodbye", shot_gif("goodbye", 5, "pcboard", start="Log off now?",
                              end="NO CARRIER", hold=3.0))
 register("renegade", shot_png("renegade", 1, "renegade",
                               ["[Main]", "Command \u00bb"], warp=FAST, exact=True))
-register("telegard", shot_png("telegard", 1, "telegard",
-                              ["[Main Menu]", "Time Left"], warp=FAST, exact=True))
+TELEGARD_NEEDLES = ["[Main Menu]", "Time Left"]
+TELEGARD_EXTRA = 30  # let the "Time Left: NN : " prompt finish painting
+register("telegard", shot_png("telegard", 1, "telegard", TELEGARD_NEEDLES,
+                              warp=FAST, exact=True, extra=TELEGARD_EXTRA))
 register("mystic", shot_png("mystic", 1, "mystic", ["(Main) ->"],
                             warp=FAST, exact=True))
 register("pcboard", shot_png("pcboard", 1, "pcboard",

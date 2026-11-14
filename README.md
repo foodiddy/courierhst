@@ -1,3 +1,5 @@
+![courierhst: a 14.4k modem dreaming of BBSes](docs/media/header.jpg)
+
 # courierhst
 sleek. sharp. black.
 
@@ -88,6 +90,14 @@ font).
 ./install.sh              # pipx if present, else pip --user
 ./install.sh --dry-run    # only print what it would run
 ./install.sh --uninstall  # remove it again
+```
+
+**Debian and Ubuntu:** pipx is the recommended route. Their system Python is
+"externally managed" (PEP 668), so `pip install --user` is refused.
+`install.sh` says so and exits with code 3 when pipx is missing:
+
+```sh
+sudo apt install pipx && ./install.sh
 ```
 
 The script checks your Python version, installs, and tells you if the bin

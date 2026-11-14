@@ -50,6 +50,17 @@ if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)' 2
     exit 1
 fi
 
+externally_managed() {
+    stdlib=${COURIERHST_STDLIB_DIR:-}
+    [ -n "$stdlib" ] || stdlib=$(python3 -c "import sysconfig; print(sysconfig.get_path('stdlib'))" 2>/dev/null)
+    [ -n "$stdlib" ] && [ -f "$stdlib/EXTERNALLY-MANAGED" ]
+}
+
+managed_hint() {
+    echo "install.sh: this system's Python is externally managed (Debian 12+/Ubuntu 23.04+)." >&2
+    echo "pipx is needed: sudo apt install pipx, then re-run ./install.sh" >&2
+}
+
 HAVE_PIPX=0
 have pipx && HAVE_PIPX=1
 HAVE_PIP=0
@@ -81,7 +92,23 @@ if [ "$HAVE_PIPX" = 1 ]; then
     fi
     [ -n "$BINDIR" ] || BINDIR="$HOME/.local/bin"
 elif [ "$HAVE_PIP" = 1 ]; then
-    run python3 -m pip install --user . || exit 1
+    if externally_managed; then
+        managed_hint
+        exit 3
+    fi
+    if [ "$DRY" = 1 ]; then
+        run python3 -m pip install --user .
+    else
+        echo "+ python3 -m pip install --user ."
+        pip_out=$(python3 -m pip install --user . 2>&1)
+        pip_rc=$?
+        if [ "$pip_rc" != 0 ] && printf '%s\n' "$pip_out" | grep -q 'externally-managed-environment'; then
+            managed_hint
+            exit 3
+        fi
+        printf '%s\n' "$pip_out"
+        [ "$pip_rc" = 0 ] || exit 1
+    fi
     BASE=$(python3 -m site --user-base 2>/dev/null)
     [ -n "$BASE" ] || BASE="$HOME/.local"
     BINDIR="$BASE/bin"

@@ -71,7 +71,10 @@ class Sandbox:
                       '  list) printf "%%s" "%s" ;;\n'
                       'esac\n'
                       'exit 0\n' % (self.log, bindir, pipx_list))
+        self.stdlib = os.path.join(tmp, "stdlib")
+        os.mkdir(self.stdlib)
         self.env = {
+            "COURIERHST_STDLIB_DIR": self.stdlib,
             "HOME": self.home,
             "PYTHONUSERBASE": self.home,
             "PATH": self.shim,
@@ -286,6 +289,141 @@ class Errors(unittest.TestCase):
             self.assertIn("pip", msg)
             self.assertIn("pipx", msg)
             self.assertEqual(snapshot(sb.home), [])
+
+
+class ExternallyManaged(unittest.TestCase):
+    """PEP 668: marker in COURIERHST_STDLIB_DIR, no pipx -> hint on stderr, exit 3."""
+
+    def managed(self, tmp, python="logpip"):
+        sb = Sandbox(tmp, python="none")
+        self.piplog = os.path.join(tmp, "pip.log")
+        write_exe(os.path.join(sb.shim, "python3"),
+                  '#!/bin/sh\n'
+                  'if [ "$1" = -m ] && [ "$2" = pip ] && [ "$3" = install ]; then\n'
+                  '  echo "$*" >> "%s"\n'
+                  '%s'
+                  'fi\n'
+                  'exec "%s" "$@"\n' % (self.piplog, self.pip_body(python), REAL_PY))
+        return sb
+
+    def pip_body(self, python):
+        if python == "refuse":
+            return ('  echo "error: externally-managed-environment" >&2\n'
+                    '  echo "RAWPIPNOISE" >&2\n'
+                    '  exit 1\n')
+        return '  exit 0\n'
+
+    def mark(self, sb):
+        with open(os.path.join(sb.stdlib, "EXTERNALLY-MANAGED"), "w") as f:
+            f.write("[externally-managed]\nError=use apt\n")
+
+    def pip_installs(self):
+        if not os.path.exists(self.piplog):
+            return []
+        with open(self.piplog) as f:
+            return f.read().splitlines()
+
+    def check_hint(self, r):
+        self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+        self.assertIn("externally managed", r.stderr)
+        self.assertIn("sudo apt install pipx", r.stderr)
+        self.assertIn("./install.sh", r.stderr)
+        self.assertNotIn("externally managed", r.stdout)
+
+    def test_marker_install_and_dry_run_exit_3(self):
+        for args in ((), ("--dry-run",)):
+            with self.subTest(args=args), tempfile.TemporaryDirectory() as tmp:
+                sb = self.managed(tmp)
+                self.mark(sb)
+                self.assertIsNone(shutil.which("pipx", path=sb.env["PATH"]))
+                before = snapshot(tmp)
+                r = sb.run(*args)
+                self.check_hint(r)
+                self.assertEqual(self.pip_installs(), [])
+                self.assertNotIn("would run: python3 -m pip install", r.stdout)
+                self.assertNotIn("+ python3 -m pip install", r.stdout)
+                self.assertEqual(snapshot(tmp), before)
+                self.assertEqual(snapshot(sb.home), [])
+
+    def test_marker_never_calls_sudo_or_apt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = self.managed(tmp)
+            self.mark(sb)
+            flag = os.path.join(tmp, "called")
+            for tool in ("sudo", "apt", "apt-get"):
+                write_exe(os.path.join(sb.shim, tool), '#!/bin/sh\necho "$0" >> "%s"\nexit 1\n' % flag)
+            for args in ((), ("--dry-run",)):
+                self.check_hint(sb.run(*args))
+            self.assertFalse(os.path.exists(flag))
+
+    def test_marker_ignored_when_pipx_present(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = Sandbox(tmp, pipx=True)
+            self.mark(sb)
+            r = sb.run("--dry-run")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("would run: pipx install --force .", r.stdout)
+            self.assertNotIn("externally managed", r.stdout + r.stderr)
+
+    def test_pip_refusal_after_the_fact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = self.managed(tmp, python="refuse")
+            r = sb.run()
+            self.check_hint(r)
+            self.assertEqual(len(self.pip_installs()), 1)
+            self.assertNotIn("RAWPIPNOISE", r.stdout + r.stderr)
+            self.assertNotIn("externally-managed-environment", r.stdout + r.stderr)
+            self.assertEqual(snapshot(sb.home), [])
+
+    def test_no_marker_dry_run_unchanged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = self.managed(tmp)
+            r = sb.run("--dry-run")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            bindir = os.path.join(sb.home, "bin")
+            expected = ("would run: python3 -m pip install --user .\n"
+                        "\n"
+                        "%s is not on your PATH. Add this line to ~/.bashrc (usually) "
+                        "and restart your shell:\n"
+                        '  export PATH="%s:$PATH"\n'
+                        "\n"
+                        "Dry run: nothing was changed.\n"
+                        "Tip: use a terminal of at least 80x25 and a VGA/CP437-style font "
+                        "for the best look.\n" % (bindir, bindir))
+            self.assertEqual(r.stdout, expected)
+            self.assertEqual(r.stderr, "")
+            self.assertEqual(self.pip_installs(), [])
+
+    def test_marker_file_must_be_named_exactly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = self.managed(tmp)
+            with open(os.path.join(sb.stdlib, "EXTERNALLY-MANAGED.bak"), "w") as f:
+                f.write("x")
+            r = sb.run("--dry-run")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_real_python_stdlib_probe(self):
+        stdlib = subprocess.run([REAL_PY, "-c",
+                                 "import sysconfig; print(sysconfig.get_path('stdlib'))"],
+                                stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+        managed = os.path.isfile(os.path.join(stdlib, "EXTERNALLY-MANAGED"))
+        with tempfile.TemporaryDirectory() as tmp:
+            sb = self.managed(tmp)
+            del sb.env["COURIERHST_STDLIB_DIR"]
+            r = sb.run("--dry-run")
+            if managed:
+                self.check_hint(r)
+            else:
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn("would run: python3 -m pip install --user .", r.stdout)
+
+    def test_readme_mentions_apt_pipx(self):
+        with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as f:
+            text = f.read()
+        sec = re.search(r"(?ms)^## Install\n(.*?)(?=^## )", text).group(1)
+        self.assertIn("sudo apt install pipx && ./install.sh", sec)
+        self.assertRegex(sec, r"Debian")
+        self.assertRegex(sec, r"Ubuntu")
 
 
 NET_ERR = re.compile(r"network|connection|resolve|Could not find a version|"
