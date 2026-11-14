@@ -31,7 +31,7 @@ def geometry(cols, rows):
     return left, top, bottom, bottom + 1
 
 
-def run_session(seed, cols, rows, check, timeout=180):
+def run_session(seed, cols, rows, check, timeout=180, extra=()):
     """Run courierhst in a pty; call check(screen) after every chunk."""
     master, slave = pty.openpty()
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
@@ -39,7 +39,7 @@ def run_session(seed, cols, rows, check, timeout=180):
     proc = subprocess.Popen(
         [sys.executable, "-m", "courierhst", "--seed", str(seed), "--warp", "60",
          "--xfer-speedup", "2000", "--calls", "2", "--no-exit-on-key",
-         "--noise", "0"],
+         "--noise", "0", *extra],
         stdin=slave, stdout=slave, stderr=slave, env=env, cwd=ROOT,
         close_fds=True)
     os.close(slave)

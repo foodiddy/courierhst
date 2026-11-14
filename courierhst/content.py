@@ -62,7 +62,17 @@ SOFTWARE = {
     "renegade": "Renegade v04-05 Exp",
     "telegard": "Telegard v2.7",
     "pcboard": "PCBoard v14.5a",
+    "mystic": "Mystic BBS v1.07",
 }
+
+# What a board's affiliation with a scene group is called, in rank order
+# (left splash corner), and the board's own standing (right splash corner).
+AFFIL_ROLES = ["World HQ", "US HQ", "Distro Site", "East Coast HQ",
+               "West Coast HQ", "Courier Site", "Member Board"]
+BOARD_ROLES = ["Member Board", "Courier Site", "Distro Site", "Trading Post"]
+
+# Mystic-style message networks, per message base
+NETWORKS = ["local", "fido", "scene", "warez"]
 
 PUBLISHERS = [
     "Polaris Interactive", "Omnisoft", "Brightstar Games", "Krystal Software",

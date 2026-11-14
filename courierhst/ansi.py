@@ -319,3 +319,188 @@ def box(lines, width=78, fg=9, title=None, title_color=15, double=False):
 def elite(text):
     """Scene caps: everything upper case except a lowercase i (ELiTE)."""
     return "".join("i" if c in "iI" else c.upper() for c in text)
+
+
+# --------------------------------------------------------------------------
+# Scene-style screen chrome (framed lists, numbered menus, hints, DIZ, NFO)
+#
+# Every helper returns a list of pipe-coded lines, none wider than MAXW (79)
+# visible columns, so the 80-column window never wraps.
+# --------------------------------------------------------------------------
+
+MAXW = 79
+FRAME = 9          # bright blue frames (|01 is the dim variant)
+
+
+def _fit(text, width):
+    """Truncate to `width` visible columns and right-pad with spaces."""
+    return rpad(truncate(text, width), width)
+
+
+def frame_table(columns, rows, frame=FRAME, header=True, indent=1,
+                hdr_color=15, maxw=78):
+    """A box-drawing framed table.
+
+    columns: list of (title, width, color) tuples.  `title` is shown in
+        `hdr_color` (lowercase by convention), `width` is the cell width in
+        visible columns and `color` is the pipe colour number applied to
+        every cell of that column (cells may carry their own pipe codes).
+    rows: list of rows; each cell is a string or a list of strings (a
+        multi-line cell).  Shorter cells are padded with blank lines.
+    header: draw the title row and the ``─`` rule under it.
+    indent: blank columns left of the frame.
+    maxw: the frame is never wider than this; if the columns would be wider,
+        the last column is narrowed.
+
+    Returns pipe-coded lines (top edge, header, rule, body, bottom edge).
+    """
+    widths = [c[1] for c in columns]
+    total = indent + 1 + sum(w + 3 for w in widths)
+    if total > maxw:
+        widths[-1] = max(1, widths[-1] - (total - maxw))
+    fc = f"|{frame:02d}"
+    pad = " " * indent
+
+    def edge(left, mid, right):
+        return pad + fc + left + mid.join("─" * (w + 2) for w in widths) + right
+
+    def line(cells, colors):
+        parts = []
+        for cell, w, col in zip(cells, widths, colors):
+            parts.append(f" {_fit(f'|{col:02d}' + cell, w)} ")
+        return pad + fc + "│" + (fc + "│").join(parts) + fc + "│|07"
+
+    out = [edge("┌", "┬", "┐") + "|07"]
+    if header:
+        out.append(line([c[0] for c in columns], [hdr_color] * len(columns)))
+        out.append(edge("├", "┼", "┤") + "|07")
+    colors = [c[2] for c in columns]
+    for row in rows:
+        cells = [[c] if isinstance(c, str) else list(c) for c in row]
+        cells += [[""]] * (len(columns) - len(cells))
+        height = max(len(c) for c in cells)
+        for i in range(height):
+            out.append(line([c[i] if i < len(c) else "" for c in cells], colors))
+    out.append(edge("└", "┴", "┘") + "|07")
+    return out
+
+
+def numbered_item(n, name, desc="", name_color=15, desc_color=10, width=78):
+    """One menu item: ``( 01 ) Name ........ description``.
+
+    Brackets are orange (|06), digits yellow (|14), the name white (or
+    `name_color`), and the description green, right-aligned so the line ends
+    exactly at column `width` (78).  Returns a single pipe-coded string
+    (also a list-of-one-line helper: use ``[numbered_item(...)]``).
+    """
+    head = f" |06( |14{n:02d} |06) |{name_color:02d}"
+    room = width - vlen(head)
+    desc = truncate(desc, max(0, room - 2))
+    name = truncate(name, max(0, room - vlen(desc) - (2 if desc else 0)))
+    gap = width - vlen(head) - vlen(name) - vlen(desc)
+    return head + name + " " * gap + (f"|{desc_color:02d}" + desc if desc else "")
+
+
+def section_header(title, indent=1):
+    """``:: ORIGINAL GAMES ::`` with magenta colons and a white title."""
+    return " " * indent + f"|13:: |15{truncate(title, 60)} |13::"
+
+
+def key_hints(pairs, width=78):
+    """``(N) Next  (F) Flag`` line: keys and brackets red, labels green.
+
+    pairs: list of (key, label).  Items that would pass `width` are dropped.
+    """
+    out, used = [], 1
+    for key, label in pairs:
+        item = f"|12({key}) |10{label}"
+        w = vlen(item) + (2 if out else 0)
+        if used + w > width:
+            break
+        out.append(item)
+        used += w
+    return " " + "  ".join(out) + "|07"
+
+
+def corner_info(left_lines, right_lines, width=78):
+    """Splash info blocks: `left_lines` stacked in the top-left corner and
+    `right_lines` right-aligned in the top-right.  One output line per row.
+    """
+    out = []
+    for i in range(max(len(left_lines), len(right_lines))):
+        left = left_lines[i] if i < len(left_lines) else ""
+        right = right_lines[i] if i < len(right_lines) else ""
+        right = truncate(right, width // 2)
+        left = truncate(left, max(0, width - vlen(right) - 1))
+        gap = max(0, width - vlen(left) - vlen(right))
+        out.append(left + " " * gap + right + "|07")
+    return out
+
+
+def diz_block(group, title, publisher, part, parts, kind, supplier, cracker,
+              protect, width=45, short=False):
+    """FILE_ID.DIZ-style description, every line <= `width` (<= 45) columns:
+
+        ─┤ CRiMSON TiDE ├────────────
+        Title (c) Publisher
+        [01/05]  VGA Strategy
+        Supplied by X · Cracked by Y
+        Doc check removed
+
+    The supplier/cracker line is split in two when it would not fit.
+    `short=True` keeps only the first three lines (for disks 2..n of a set).
+    """
+    width = min(width, 45)
+    group = truncate(group, width - 6)
+    top = f"|09─┤ |14{group} |09├" + "─" * max(0, width - vlen(group) - 5)
+    body = [
+        f"|15{title} |07(c) {publisher}",
+        f"|08[|15{int(part):02d}|08/|15{int(parts):02d}|08]  |11{kind}",
+    ]
+    if not short:
+        credit = f"|07Supplied by |13{supplier}|07 · Cracked by |13{cracker}"
+        if vlen(credit) <= width:
+            body.append(credit)
+        else:
+            body += [f"|07Supplied by |13{supplier}", f"|07Cracked by |13{cracker}"]
+        body.append(f"|10{protect}")
+    return [top] + [truncate(ln, width) for ln in body]
+
+
+def updated_banner(date, width=78):
+    """Framed ``UPDATED> mm/dd/yy`` banner (red frame, yellow text), one row
+    centred in `width`.  `date` is any short string, normally mm/dd/yy."""
+    text = f"|12╞═╡ |14UPDATED> |15{date} |12╞═╡"
+    return [center(text, width)]
+
+
+def nfo_page(group, fields, greets, width=78):
+    """NFO-style release page: a framed ``field | value`` table titled with
+    the group, then a greets line.
+
+    fields: list of (label, value) such as Release, Supplier, Cracker,
+    Protection, Disks, Date.  greets: list of group names.
+    """
+    lw = max(len(f[0]) for f in fields)
+    vw = width - 2 - (lw + 3) - 3 - 1
+    rows = [[f"{k.lower()}", v] for k, v in fields]
+    out = [center(f"|09─┤ |14{truncate(group, 40)} |09├─", width)]
+    out += frame_table([("field", lw, 14), ("release info", vw, 15)], rows,
+                       maxw=width)
+    g = truncate(", ".join(greets), width - 12)
+    out.append(f" |13greets|08: |10{g}")
+    return out
+
+
+def art_tag(handle, group=""):
+    """A small lowercase artist tag (2-4 chars, e.g. ``sk`` or ``mt67``)
+    derived deterministically from the artist's handle/group, dark grey."""
+    import zlib
+    src = "".join(c for c in handle.lower() if c.isalpha()) or "x"
+    h = zlib.crc32((handle + group).encode())
+    a = src[0]
+    b = src[1:][h % len(src[1:])] if len(src) > 1 else "x"
+    tag = a + b
+    if (h >> 8) % 3 == 0:
+        tag += f"{(h >> 4) % 90 + 10}"
+    return f"|08{tag}"

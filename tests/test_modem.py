@@ -62,7 +62,44 @@ class StatusBar(unittest.TestCase):
         line = make()
         line.cols, line.rows, line.left, line.status_row = 80, 30, 0, 27
         line._draw_status(force=True)
-        self.assertIn("OFFLINE", "".join(line._buf))
+        self.assertIn("Offline", "".join(line._buf))
+
+
+class StatusBarStyle(unittest.TestCase):
+    def draw(self, cols=100, **kw):
+        line = make()
+        line.cols, line.rows, line.left, line.status_row = cols, 40, 0, 30
+        for k, v in kw.items():
+            setattr(line, k, v)
+        line._buf.clear()
+        line._draw_status(force=True)
+        raw = "".join(line._buf)
+        m = re.search(r"\x1b\[30;1H\x1b\[0m\x1b\[2K\x1b\[30;1H(.*)\x1b\[0m\x1b8", raw, re.S)
+        self.assertTrue(m, raw)
+        return m.group(1)
+
+    def test_online(self):
+        body = self.draw(online_since=time.monotonic() - 21, status_name="The Black Inferno")
+        plain = re.sub(r"\x1b\[[0-9;]*m", "", body)
+        self.assertEqual(plain, (" The Black Inferno | 14400/ARQ/HST | Connected: 00:00:21"
+                                 " | ALT-Z for menu").ljust(99 if False else 79))
+        self.assertIn("44m", body)  # blue background, whole bar in one SGR
+        self.assertLessEqual(body.count("\x1b["), 2)
+
+    def test_dialing_and_offline(self):
+        plain = lambda b: re.sub(r"\x1b\[[0-9;]*m", "", b).rstrip()
+        self.assertEqual(plain(self.draw(dialing=True, status_name="Foo BBS")),
+                         " Dialing Foo BBS... | ALT-Z for menu")
+        self.assertEqual(plain(self.draw()), " Offline | ALT-Z for menu")
+
+    def test_long_name_keeps_tail(self):
+        for cols in (60, 80, 120):
+            body = self.draw(cols, online_since=time.monotonic(), status_name="X" * 90)
+            plain = re.sub(r"\x1b\[[0-9;]*m", "", body)
+            self.assertLessEqual(len(plain), min(80, cols) - 1)
+            self.assertIn("14400", plain)
+            self.assertIn("Connected:", plain)
+            self.assertIn("ALT-Z for menu", plain)
 
 
 if __name__ == "__main__":

@@ -56,6 +56,7 @@ class Line:
         self.status_name = ""
         self.connect_speed = ""
         self.offline_msg = "OFFLINE"
+        self.dialing = False
 
     # ------------------------------------------------------------------ setup
     def __enter__(self):
@@ -244,22 +245,22 @@ class Line:
         if not force and now - self._last_status < 1.0:
             return
         self._last_status = now
+        width = min(BBS_COLS, self.cols) - 1  # never write the last column
+        name = self.status_name
+        tail = " | ALT-Z for menu"
         if self.online_since is not None:
             e = int(now - self.online_since)
-            tm = f"ONLINE {e // 3600:02d}:{e % 3600 // 60:02d}:{e % 60:02d}"
-            name = self.status_name
-            spd = self.connect_speed
+            mid = (f" | 14400/ARQ/HST | Connected: "
+                   f"{e // 3600:02d}:{e % 3600 // 60:02d}:{e % 60:02d}")
+            room = width - len(" " + mid + tail)
+            text = " " + name[:max(0, room)] + mid + tail
+        elif self.dialing:
+            room = width - len(" Dialing ... | ALT-Z for menu")
+            text = f" Dialing {name[:max(0, room)]}..." + tail
         else:
-            tm, name, spd = self.offline_msg, "", ""
-        width = min(BBS_COLS, self.cols) - 1  # never write the last column
-        right = f"|08│ |11{tm} "
-        left = "|08|16 ▐|00|23 ALT-Z |08|16▌"
-        mid = f"|03 {spd or 'COURIER HST'}|08 │|03 N81|08 │|03 ANSI|08 │"
-        room = width - ansi.vlen(left + mid + right) - 2
-        if room < 6:
-            mid, room = "", width - ansi.vlen(left + right) - 2
-        bar = left + mid + f"|11 {name[:max(0, room)]}"
-        bar = ansi.rpad(bar, width - ansi.vlen(right)) + right
-        sgr_txt = ansi.pipe_to_ansi(ansi.truncate(bar, width), [7, 0])
+            text = " Offline" + tail
+        text = text.replace("|", "||")
+        bar = "|15|17" + ansi.rpad(ansi.truncate(text, width), width) + "|07|16"
+        sgr_txt = ansi.pipe_to_ansi(bar, [7, 0])
         self._raw(f"\x1b7\x1b[{self.status_row};1H\x1b[0m\x1b[2K"
-                  f"\x1b[{self.status_row};{self.left + 1}H{sgr_txt}\x1b8")
+                  f"\x1b[{self.status_row};{self.left + 1}H{sgr_txt}\x1b[0m\x1b8")
