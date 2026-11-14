@@ -37,12 +37,42 @@ starship, phone) by fictional artists (`courierhst/art.py`).
 
 Every board, handle, group, release title and door game is fictional.
 
+## Install
+
+**Requirements:** Python 3.8+ on Linux, a terminal of at least 80x25, and a
+VGA/CP437-style font for the best look (e.g. a "Perfect DOS VGA 437"-style
+font).
+
+**Quick install** (no sudo, per-user):
+
+```sh
+./install.sh              # pipx if present, else pip --user
+./install.sh --dry-run    # only print what it would run
+./install.sh --uninstall  # remove it again
+```
+
+The script checks your Python version, installs, and tells you if the bin
+directory needs adding to `PATH`. It never edits your shell rc files.
+
+**Manual install:**
+
+```sh
+pipx install .            # or: pip install --user .
+courierhst
+python3 -m courierhst     # or run straight from the checkout, no install
+```
+
+**Uninstall:** `./install.sh --uninstall`, or `pipx uninstall courierhst` /
+`pip uninstall courierhst`.
+
+**Optional extras:** `pip install '.[test]'` adds `pyte` for running the tests.
+
 ## Run
 
 ```sh
 python3 -m courierhst          # from the repo, no dependencies
-# or
-pip install . && courierhst
+# or, once installed (see Install)
+courierhst
 ```
 
 Press any key to exit.
