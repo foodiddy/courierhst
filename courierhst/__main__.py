@@ -23,7 +23,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(
         prog="courierhst",
         description="Screensaver: dial up early-90s warez BBSes on a "
-                    "USR Courier HST. Any key exits.")
+                    "14.4 USR Courier HST. Any key exits.")
     p.add_argument("--bps", type=int, default=14400,
                    help="line speed in bits/sec (default 14400)")
     p.add_argument("--handle", help="your handle (default: random)")
@@ -33,9 +33,11 @@ def main(argv=None):
     p.add_argument("--no-status", action="store_true",
                    help="hide the terminal-program status bar")
     p.add_argument("--noise", type=float, default=0.0007,
-                   help="line-noise probability per character (0 disables)")
-    p.add_argument("--xfer-speedup", type=float, default=40.0,
-                   help="time compression for Zmodem downloads (1 = real time)")
+                   help="line-noise probability per character "
+                        "(default %(default)s, 0 disables)")
+    p.add_argument("--xfer-speedup", type=float, default=40,
+                   help="time compression for Zmodem downloads "
+                        "(default %(default)s, 1 = real time)")
     p.add_argument("--step-pause", type=_nonneg_float, metavar="SECONDS",
                    default=DEFAULT_STEP_PAUSE,
                    help="seconds to linger before moving on to the next menu "
@@ -44,9 +46,11 @@ def main(argv=None):
     p.add_argument("--no-exit-on-key", action="store_true",
                    help="ignore keypresses (exit with Ctrl-C)")
     p.add_argument("--calls", type=int, default=0,
-                   help="number of BBS calls before exiting (0 = forever)")
+                   help="number of BBS calls before exiting "
+                        "(default %(default)s = forever)")
     p.add_argument("--warp", type=float, default=1.0,
-                   help="speed up everything by this factor (for previews)")
+                   help="speed up everything by this factor, for previews "
+                        "(default %(default)s)")
     p.add_argument("--board-style", choices=["renegade", "telegard", "mystic", "pcboard"],
                    help="force every board to this BBS software style "
                         "(default: random mix)")

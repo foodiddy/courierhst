@@ -144,12 +144,12 @@ FONT = {k: [r for r in v.split()] for k, v in _FONT_SRC.items()}
 PALETTES = {
     "cyan":    [15, 11, 11, 3, 3, 9, 1],
     "fire":    [15, 14, 14, 12, 12, 4, 4],
-    "toxic":   [15, 10, 10, 2, 2, 8, 8],
+    "toxic":   [15, 10, 10, 2, 2, 2, 2],
     "violet":  [15, 13, 13, 5, 5, 1, 1],
     "ice":     [15, 15, 11, 11, 9, 9, 1],
-    "blood":   [12, 12, 4, 4, 4, 8, 8],
+    "blood":   [12, 12, 4, 4, 4, 4, 4],
     "gold":    [15, 14, 14, 6, 6, 4, 4],
-    "steel":   [15, 7, 7, 8, 8, 8, 8],
+    "steel":   [15, 7, 7, 3, 3, 3, 3],
 }
 
 # Accent colors (bright, dim) that pair with each palette for menus.

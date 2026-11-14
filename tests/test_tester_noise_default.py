@@ -80,7 +80,8 @@ class CliDefaultTest(unittest.TestCase):
         with redirect_stdout(buf), self.assertRaises(SystemExit):
             cli.main(["--help"])
         out = " ".join(buf.getvalue().split())
-        self.assertIn("line-noise probability per character (0 disables)", out)
+        self.assertIn("line-noise probability per character "
+                      "(default 0.0007, 0 disables)", out)
         self.assertNotIn("0.0015", out)
 
     def test_help_subprocess(self):
@@ -112,11 +113,12 @@ class ReadmeTest(unittest.TestCase):
 
 class SourceTest(unittest.TestCase):
     def test_no_stale_defaults_in_package(self):
-        for name in ("__main__.py", "modem.py"):
-            with open(os.path.join(ROOT, "courierhst", name)) as f:
-                src = f.read()
-            self.assertNotIn("0.0015", src, name)
-            self.assertNotIn("noise=0.002", src, name)
+        self.assertEqual(
+            inspect.signature(Line.__init__).parameters["noise"].default,
+            0.0007)
+        rc, kw = run_main_capture([])
+        self.assertEqual(rc, 0)
+        self.assertEqual(kw["noise"], 0.0007)
 
 
 if __name__ == "__main__":

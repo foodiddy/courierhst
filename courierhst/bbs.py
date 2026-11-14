@@ -412,10 +412,13 @@ class Session:
         words = artist.split()
         while len(words) > 1 and len(f"ansi by {' '.join(words)}/{group}") > width:
             words.pop()
-        text = f"ansi by {' '.join(words)}/{group}"
-        if len(text) > width:
-            keep = max(1, len(words[0]) - (len(text) - width))
-            text = f"ansi by {words[0][:keep]}/{group}"
+        artist = " ".join(words)
+        room = width - len("ansi by /")
+        if len(artist) + len(group) > room:
+            artist = artist[:max(1, room - len(group))]
+        if len(artist) + len(group) > room:
+            group = group[:max(1, room - len(artist))]
+        text = f"ansi by {artist}/{group}"
         return " " * max(0, width - len(text)) + text
 
     def mail_scan(self, has_mail):
