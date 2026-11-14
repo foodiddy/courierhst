@@ -92,3 +92,15 @@ program for seeds 1-20 at 80x26, 80x24 and 120x40 and check the output with
 the `pyte` VT emulator; they are skipped if `pyte` is missing. Install it
 with `pip install pyte` (or `pip install -e '.[test]'`). The full pty run
 takes about 30 seconds.
+
+To get `pyte` along with the project, run `pip install '.[test]'` (use a
+virtualenv). The foundry gate in `foundry.json` does exactly that in a fresh
+venv and then runs the suite:
+
+```sh
+python3 -m venv "$TMPDIR/v" && "$TMPDIR/v"/bin/pip install -q '.[test]' && COURIERHST_REQUIRE_PYTE=1 "$TMPDIR/v"/bin/python -m unittest discover -s tests -t .
+```
+
+`COURIERHST_REQUIRE_PYTE=1` makes a missing `pyte` a hard error (importing the
+`tests` package raises `ImportError`) instead of silently skipping the pty
+tests. Leave it unset for normal local runs; only the gate sets it.

@@ -1,0 +1,3 @@
+{
+  "gates": ["python3 -m venv \"$TMPDIR/v\" && \"$TMPDIR/v\"/bin/pip install -q '.[test]' && COURIERHST_REQUIRE_PYTE=1 \"$TMPDIR/v\"/bin/python -m unittest discover -s tests -t ."]
+}
