@@ -283,7 +283,6 @@ class Session:
     def dial(self):
         L, b, r = self.line, self.b, self.rng
         L.cls_local()
-        L.offline_msg = "DIALING"
         L.status_name = b.name
         L.dialing = True
         L.local(f"|08── |03Dialing directory entry |11#{r.randint(1, 40)}"
@@ -308,7 +307,6 @@ class Session:
         speed = r.choice(["14400/ARQ/HST/HFC", "14400/ARQ/HST", "14400/ARQ/HST/HFC/MNP"])
         L.local(f"|15CONNECT {speed}\n|07")
         L.connect_speed = "14400 HST"
-        L.offline_msg = "OFFLINE"
         L.dialing = False
         L.online_since = time.monotonic()
         L.pause(1.0)
@@ -395,8 +393,20 @@ class Session:
         art.append(center(f"|08{b.software} ∙ {b.city}, {b.state} ∙ "
                           f"|07{b.phone[2:]}"))
         art.append(gradient_rule(78, b.palette, "═"))
-        art.append(f"|08{' ' * 55}ansi by {b.art_by[0].lower()}/{b.art_by[1].lower()}")
+        art.append("|08" + self._ansi_credit())
         self.out(art)
+
+    def _ansi_credit(self, width=79):
+        """Right-aligned ``ansi by artist/group`` credit, at most ``width`` columns."""
+        artist, group = self.b.art_by[0].lower(), self.b.art_by[1].lower()
+        words = artist.split()
+        while len(words) > 1 and len(f"ansi by {' '.join(words)}/{group}") > width:
+            words.pop()
+        text = f"ansi by {' '.join(words)}/{group}"
+        if len(text) > width:
+            keep = max(1, len(words[0]) - (len(text) - width))
+            text = f"ansi by {words[0][:keep]}/{group}"
+        return " " * max(0, width - len(text)) + text
 
     def mail_scan(self, has_mail):
         """Mystic-style ``>>`` mail scan lines."""
@@ -675,25 +685,14 @@ class Session:
     def file_list_pcb(self, kind):
         b, r = self.b, self.rng
         entries = self._entries(kind)
-        if b.style == "pcboard":
-            self.out([f"|14Filename       Size      Date    Description of File Contents",
-                      "|09============  ========  ======== " + "=" * 42])
-        else:
-            self.out([f"|08 ## {rpad('Filename', 13)}{'Size':>6} {'DLs':>4}  Description",
-                      "|08 " + "─" * 77])
-        for i, (fn, size, date, dls, desc, _, _r) in enumerate(entries, 1):
+        self.out([f"|14Filename       Size      Date    Description of File Contents",
+                  "|09============  ========  ======== " + "=" * 42])
+        for fn, size, date, dls, desc, _, _r in entries:
             base, ext = fn.split(".")
-            if b.style == "pcboard":
-                head = f"|14{rpad(base, 8)}.{ext}  |02{size * 1024:>8}  |03{date}  "
-                self.out(head + desc[0])
-                for d in desc[1:]:
-                    self.out(" " * 35 + "|09| " + d)
-            else:
-                head = (f" |15{i:>2} |{b.hi:02d}{rpad(base, 8)}|{b.lo:02d}.|{b.hi:02d}{ext} "
-                        f"|07{size:>5}k |08[|07{dls:>3}|08] ")
-                self.out(head + desc[0])
-                for d in desc[1:]:
-                    self.out(" " * 30 + d)
+            head = f"|14{rpad(base, 8)}.{ext}  |02{size * 1024:>8}  |03{date}  "
+            self.out(head + desc[0])
+            for d in desc[1:]:
+                self.out(" " * 35 + "|09| " + d)
         self.out("")
         self.line.rpause(3, 6)
         flagged = []
@@ -952,11 +951,11 @@ class Session:
                 lines = [ansi.truncate(x, 42) for x in desc]
             rows.append([str(i), fn, [f"{size}k", "|10" + date.replace("-", "/")], lines])
         if b.style == "mystic":
-            out = [CLS, "", f" |15{'NUM':<5}{'FILENAME':<13}{'SIZE':<9}{'DATE':<10}DESCRIPTION",
+            out = [CLS, "", f" |15{'NUM':<5}{'FILENAME':<14}{'SIZE':<7}{'DATE':<10}DESCRIPTION",
                    " |08" + "─" * 76]
             for num, fn, (sz, dt), lines in rows:
-                out.append(f" |10{num.rjust(2):<4} {rpad(fn, 12)}|07{rpad(sz, 7)}|08{dt[3:]:<10}" + lines[0])
-                out += [" " * 35 + x for x in lines[1:]]
+                out.append(f" |10{num.rjust(2):<4} {rpad(fn, 14)}|07{rpad(sz, 7)}|08{dt[3:]:<10}" + lines[0])
+                out += [" " * 37 + x for x in lines[1:]]
             tot = sum(e[1] for e in entries)
             out += ["", mystic_info(f"{len(entries)} files, {tot:,}k in this area."), ""]
         else:

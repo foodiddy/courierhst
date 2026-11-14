@@ -318,7 +318,15 @@ class Boards(unittest.TestCase):
             self.assertIsNotNone(m, name)
             return m.group(1).rstrip()
         here = inspect.getsource(bbs)
-        self.assertEqual(body(here, "splash_pcb"), body(main_src, "splash"))
+        # Task mwfxj435bxgw2e intentionally changed only the "ansi by" credit
+        # line (now right-aligned via _ansi_credit); everything else must match.
+        old_credit = ("        art.append(f\"|08{' ' * 55}ansi by {b.art_by[0].lower()}"
+                      "/{b.art_by[1].lower()}\")")
+        new_credit = '        art.append("|08" + self._ansi_credit())'
+        old_body = body(main_src, "splash")
+        self.assertIn(old_credit, old_body)
+        self.assertEqual(body(here, "splash_pcb"),
+                         old_body.replace(old_credit, new_credit))
 
     def test_framed_file_list_shows_full_filenames_and_headers(self):
         """Filenames must not be cut by the framed column (art-pack names
