@@ -27,6 +27,11 @@ A terminal-program status bar (connect speed, board name, online timer) sits
 under the 80x25 BBS window. The window is centred in larger terminals. There
 is occasional line noise.
 
+Each board's logo is drawn in one of four styles, picked at random per board:
+the 5x5 half-block letters, chunky 7-row letters with a drop shadow, chunky
+letters dithered with `░▒▓` towards the bottom, or thin line-art lettering
+made of `/ \ _ |` (`courierhst/logos.py`).
+
 Every board, handle, group, release title and door game is fictional.
 
 ## Run

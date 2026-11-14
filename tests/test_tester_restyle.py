@@ -323,10 +323,16 @@ class Boards(unittest.TestCase):
         old_credit = ("        art.append(f\"|08{' ' * 55}ansi by {b.art_by[0].lower()}"
                       "/{b.art_by[1].lower()}\")")
         new_credit = '        art.append("|08" + self._ansi_credit())'
+        # Task mwgk5n5f4y68yt intentionally replaced the board-logo call
+        # with the board's own logo engine (b.logo with a row cap).
+        old_logo = "        art += logo(name.upper(), b.palette)"
+        new_logo = "        art += b.logo(name.upper(), max_rows=12)"
         old_body = body(main_src, "splash")
         self.assertIn(old_credit, old_body)
+        self.assertIn(old_logo, old_body)
         self.assertEqual(body(here, "splash_pcb"),
-                         old_body.replace(old_credit, new_credit))
+                         old_body.replace(old_credit, new_credit)
+                                 .replace(old_logo, new_logo))
 
     def test_framed_file_list_shows_full_filenames_and_headers(self):
         """Filenames must not be cut by the framed column (art-pack names

@@ -1,7 +1,7 @@
 """Door games. Original designs in the style of early-90s BBS doors."""
 
-from . import content
-from .ansi import box, center, elite, fade_bar, gradient_rule, logo, rpad
+from . import content, logos
+from .ansi import box, center, elite, fade_bar, gradient_rule, rpad
 
 CLS = "\x0c"
 
@@ -29,7 +29,7 @@ def shadowmire(s):
     weapon = WEAPONS[min(len(WEAPONS) - 1, lvl // 2)]
     armor = ARMOR[min(len(ARMOR) - 1, lvl // 3)]
 
-    art = [CLS] + logo("SHADOWMIRE", "toxic") + [
+    art = [CLS] + logos.render("SHADOWMIRE", "toxic", "dither") + [
         center("|02∙|10∙|02∙ |07The Swamp Kingdom of |10Vael |02∙|10∙|02∙"),
         center("|08v2.10 ∙ (c) 1992 Bogwater Software ∙ Registered to " + s.b.name),
         "", gradient_rule(78, "toxic", "─"), ""]
@@ -149,7 +149,7 @@ def starlane(s):
     turns = r.randint(80, 400)
     cargo = {"Ore": r.randint(0, holds // 2), "Organics": 0, "Equipment": 0}
 
-    s.out([CLS] + logo("STARLANE", "ice") + [
+    s.out([CLS] + logos.render("STARLANE", "ice", "lineart") + [
         center("|11M E R C H A N T"),
         center("|08v3.4 ∙ (c) 1993 Deep Orbit Software ∙ Shareware - please register!"),
         "", gradient_rule(78, "ice", "═"), ""])
