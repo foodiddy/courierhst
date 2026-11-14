@@ -3,7 +3,7 @@
 import random
 import time
 
-from . import ansi, content, doors, logos
+from . import ansi, art, content, doors, logos
 from .ansi import (box, center, elite, fade_bar, gradient_rule, key_hints,
                    numbered_item, rpad, section_header)
 
@@ -926,10 +926,15 @@ class Session:
             return self.do_files_pcb()
         out = [CLS, section_header("FILE AREAS"), ""] + ansi.updated_banner(b.updated()) + [""]
         areas = content.FILE_AREAS
+        items = []
         for i, (nm, kind) in enumerate(areas, 1):
-            out.append(numbered_item(i, nm, f"{r.randint(40, 2400):,} files · "
-                                            f"{r.randint(5, 900)} megs"))
-        out.append("")
+            files, megs = r.randint(40, 2400), r.randint(5, 900)
+            # long area names win over the description in 46 columns
+            desc = f"{files:,} files" if len(nm) < 22 else f"{files:,}"
+            items.append(numbered_item(i, nm, desc, width=46))
+        name = art.pick(r, "panel")
+        panel = art.piece(name) + [ansi.truncate(art.credit(name), 30)]
+        out += art.side_by_side(panel, items) + [""]
         self.out(out)
         pick = r.choice([1, 1, 1, 2, 2, 3, 4, 5])
         self.select(str(pick), "Files", width=2)
@@ -1111,11 +1116,18 @@ class Session:
     def do_bye(self):
         L, b, r = self.line, self.b, self.rng
         self.ask("|07Log off now? |08(|15Y|08/|15n|08) |15", "Y")
-        bye = [CLS, ""] + b.logo(elite("Later"), max_rows=12) + [""]
-        bye += [center(f"|07Thanks for calling |{b.hi:02d}{b.name}|07, {self.user}!"),
-                center(f"|07You were on for |15{max(1, int((time.monotonic() - b.started) / 60))}|07 minutes."),
-                "", center(fade_bar(40, (8, b.lo, b.hi, b.lo, 8))),
-                center(f"|08Call back soon ∙ {b.phone[2:]} ∙ 24 hours"), ""]
+        name = art.pick(r, "bye")
+        left = art.piece(name)
+        mins = max(1, int((time.monotonic() - b.started) / 60))
+        lines = [f"|15GOOD BYE FRIEND!"]
+        for t in (f"|07Thanks for calling |{b.hi:02d}{b.name}|07, {self.user}!",
+                  f"|07You were on for |15{mins}|07 minutes.",
+                  f"|08Call back soon ∙ {b.phone[2:]} ∙ 24 hours",
+                  "|08" + r.choice(content.TAGLINES)):
+            lines += art.wrap(t, 79 - ansi.vlen(left[0]) - 2)
+        top = max(0, (len(left) - len(lines)) // 2)
+        right = [""] * top + lines
+        bye = [CLS] + b.logo("GOOD BYE", max_rows=4) + art.side_by_side(left, right) + [art.credit(name)]
         self.out(bye)
         L.rpause(1.5, 2.5)
         L.local("|07\n")

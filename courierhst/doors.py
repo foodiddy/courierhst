@@ -1,6 +1,6 @@
 """Door games. Original designs in the style of early-90s BBS doors."""
 
-from . import content, logos
+from . import art, content, logos
 from .ansi import box, center, elite, fade_bar, gradient_rule, rpad
 
 CLS = "\x0c"
@@ -29,14 +29,14 @@ def shadowmire(s):
     weapon = WEAPONS[min(len(WEAPONS) - 1, lvl // 2)]
     armor = ARMOR[min(len(ARMOR) - 1, lvl // 3)]
 
-    art = [CLS] + logos.render("SHADOWMIRE", "toxic", "dither") + [
-        center("|02∙|10∙|02∙ |07The Swamp Kingdom of |10Vael |02∙|10∙|02∙"),
-        center("|08v2.10 ∙ (c) 1992 Bogwater Software ∙ Registered to " + s.b.name),
-        "", gradient_rule(78, "toxic", "─"), ""]
-    s.out(art)
+    right = (art.wrap("|02∙|10∙|02∙ |07The Swamp Kingdom of |10Vael |02∙|10∙|02∙", 47)
+             + art.wrap("|08v2.10 ∙ (c) 1992 Bogwater Software ∙ Registered to " + s.b.name, 47) + [""]
+             + art.wrap(f"|07Welcome back, |10{s.user}|07. The fog is thick today.", 47)
+             + art.wrap(f"|07You have |15{fights}|07 forest fights left.", 47))
+    s.out([CLS] + logos.render("SHADOWMIRE", "toxic", "dither")
+          + art.side_by_side(art.piece("dragon"), right)
+          + [gradient_rule(78, "toxic", "─"), ""])
     L.rpause(1.5, 2.5)
-    s.out([center(f"|07Welcome back, |10{s.user}|07. The fog is thick today."),
-           center(f"|07You have |15{fights}|07 forest fights left."), ""])
     s.more()
 
     def town_menu():
@@ -149,13 +149,15 @@ def starlane(s):
     turns = r.randint(80, 400)
     cargo = {"Ore": r.randint(0, holds // 2), "Organics": 0, "Equipment": 0}
 
-    s.out([CLS] + logos.render("STARLANE", "ice", "lineart") + [
-        center("|11M E R C H A N T"),
-        center("|08v3.4 ∙ (c) 1993 Deep Orbit Software ∙ Shareware - please register!"),
-        "", gradient_rule(78, "ice", "═"), ""])
+    ship = r.choice(['Rustbucket', 'Night Heron', 'Wanderer', 'Bad Credit', 'Second Mortgage'])
+    right = (art.wrap("|11M E R C H A N T", 47)
+             + art.wrap("|08v3.4 ∙ (c) 1993 Deep Orbit Software ∙ Shareware - please register!", 47) + [""]
+             + art.wrap(f"|07Pilot |11{s.user}|07, your ship |15{ship}|07 awaits.", 47)
+             + art.wrap(f"|07You have |15{turns}|07 turns remaining.", 47))
+    s.out([CLS] + logos.render("STARLANE", "ice", "lineart")
+          + art.side_by_side(art.piece("ship"), right)
+          + [gradient_rule(78, "ice", "═"), ""])
     L.rpause(1.5, 2.5)
-    s.out([center(f"|07Pilot |11{s.user}|07, your ship |15{r.choice(['Rustbucket', 'Night Heron', 'Wanderer', 'Bad Credit', 'Second Mortgage'])}|07 awaits."),
-           center(f"|07You have |15{turns}|07 turns remaining."), ""])
     s.more()
 
     def sector_view():
