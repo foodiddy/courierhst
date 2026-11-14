@@ -5,6 +5,7 @@ Styles (all letterforms here are original designs):
 * ``block``   - the 5x5 half-block font from :mod:`courierhst.ansi`
 * ``chunky``  - 7-pixel-tall heavy half-block letters with a drop shadow
 * ``dither``  - the chunky font, shaded towards the bottom with ░▒▓
+  (a 4-row-per-line variant is used when a wrapped name is too tall)
 * ``lineart`` - thin lettering made of ``/ \\ _ |``, gradient left to right
 
 ``render`` returns pipe-coded lines and never raises.
@@ -204,6 +205,28 @@ def _dither_rows(line, pal):
     return ["".join(c or "|07|16 " for c in row) + "|07|16" for row in cells]
 
 
+def _dither_compact_rows(line, pal):
+    """Four rows per line: two half-block rows, then one ▒ and one ░ row.
+
+    Used for multi-line names that would not fit in the full six-row layout.
+    """
+    px = _chunky_pixels(line)
+    w = len(px[0]) + 1
+    cells = [[None] * w for _ in range(4)]
+    for x in range(w - 1):
+        for r in (0, 1):
+            ct = pal[(2 * r) * len(pal) // 7] if px[2 * r][x] else None
+            cb = pal[(2 * r + 1) * len(pal) // 7] if px[2 * r + 1][x] else None
+            if ct is not None or cb is not None:
+                cells[r][x] = ansi._cell(ct, cb)
+        for r, ys, shade in ((2, (4, 5), "▒"), (3, (6,), "░")):
+            for y in ys:
+                if px[y][x]:
+                    cells[r][x] = f"|{pal[y * len(pal) // 7]:02d}|16{shade}"
+                    break
+    return ["".join(c or "|07|16 " for c in row) + "|07|16" for row in cells]
+
+
 def _line_width(line):
     return sum(len(_LINE[c][0]) for c in line) + len(line) - 1
 
@@ -233,6 +256,7 @@ def _line_rows(line, pal):
 _ENGINES = {
     "chunky": (_chunky_width, _chunky_rows, 4),
     "dither": (_dither_width, _dither_rows, 6),
+    "dither_compact": (_dither_width, _dither_compact_rows, 4),
     "lineart": (_line_width, _line_rows, 4),
 }
 
@@ -268,6 +292,9 @@ def render(text, palette="cyan", style="block", width=78, max_rows=12):
     text = _clean(text)
     if style in _ENGINES:
         out = _try_style(style, text, _palette(palette), width, max_rows)
+        if not out and style == "dither":
+            out = _try_style("dither_compact", text, _palette(palette),
+                             width, max_rows)
         if out:
             return out
     return _block(text, palette, width, max_rows)

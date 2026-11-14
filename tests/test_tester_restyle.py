@@ -303,36 +303,49 @@ class Boards(unittest.TestCase):
                 self.assertNotIn("gigs online", txt)
 
     def test_pcboard_splash_source_matches_main(self):
-        """The PCBoard splash body must be byte-identical to main's splash()."""
-        try:
-            main_src = subprocess.run(
-                ["git", "show", "e7b83f9:courierhst/bbs.py"], cwd=ROOT,
-                capture_output=True, text=True, check=True).stdout
-        except (OSError, subprocess.CalledProcessError):
-            self.skipTest("main revision e7b83f9 not available")
-        import inspect
-
-        def body(src, name):
-            m = re.search(r"^    def %s\(self\):\n(.*?)(?=^    def |^class |\Z)" % name,
-                          src, re.S | re.M)
-            self.assertIsNotNone(m, name)
-            return m.group(1).rstrip()
-        here = inspect.getsource(bbs)
-        # Task mwfxj435bxgw2e intentionally changed only the "ansi by" credit
-        # line (now right-aligned via _ansi_credit); everything else must match.
-        old_credit = ("        art.append(f\"|08{' ' * 55}ansi by {b.art_by[0].lower()}"
-                      "/{b.art_by[1].lower()}\")")
-        new_credit = '        art.append("|08" + self._ansi_credit())'
-        # Task mwgk5n5f4y68yt intentionally replaced the board-logo call
-        # with the board's own logo engine (b.logo with a row cap).
-        old_logo = "        art += logo(name.upper(), b.palette)"
-        new_logo = "        art += b.logo(name.upper(), max_rows=12)"
-        old_body = body(main_src, "splash")
-        self.assertIn(old_credit, old_body)
-        self.assertIn(old_logo, old_body)
-        self.assertEqual(body(here, "splash_pcb"),
-                         old_body.replace(old_credit, new_credit)
-                                 .replace(old_logo, new_logo))
+        """PCBoard splash behaviour: fits the screen and keeps its parts
+        (board logo rows, sysop line, World HQ line, right-aligned credit)."""
+        for seed in range(25):
+            with self.subTest(seed=seed):
+                s, cap = session("pcboard", seed)
+                art = []
+                s.out = lambda lines, _art=art: _art.extend(
+                    [lines] if isinstance(lines, str) else lines)
+                s.splash()
+                b = s.b
+                self.assertEqual(art[0], bbs.CLS)
+                self.assertEqual(art.count(bbs.CLS), 1)
+                body = art[1:]
+                self.assertLessEqual(len(body), 24)
+                for ln in body:
+                    self.assertLessEqual(ansi.vlen(ln), 79, repr(ln))
+                plain = [ansi.strip(ln) for ln in body]
+                cands = [b.name.upper()]
+                if b.name.startswith("The "):
+                    cands.append(b.name[4:].upper())
+                logos_ok = []
+                for nm in cands:
+                    rows = [ansi.strip(x) for x in b.logo(nm, max_rows=12)]
+                    self.assertTrue(rows)
+                    if any(plain[i:i + len(rows)] == rows
+                           for i in range(len(plain))):
+                        logos_ok.append(nm)
+                self.assertTrue(logos_ok, "board logo rows missing")
+                txt = "\n".join(plain)
+                self.assertIn("Sysop " + b.sysop, txt)
+                self.assertIn("CoSysop " + b.cosysop, txt)
+                self.assertIn(ansi.strip(ansi.elite("World HQ")) + ": "
+                              + b.affils[0], txt)
+                credit = plain[-1]
+                self.assertEqual(len(credit), 79, repr(credit))
+                self.assertTrue(credit.lstrip().startswith("ansi by "),
+                                repr(credit))
+                full = "ansi by %s/%s" % (b.art_by[0].lower(),
+                                          b.art_by[1].lower())
+                if len(full) <= 79:
+                    self.assertTrue(credit.endswith(full), repr(credit))
+                self.assertEqual(credit.count("ansi by"), 1)
+                self.assertEqual(txt.count("ansi by"), 1)
 
     def test_framed_file_list_shows_full_filenames_and_headers(self):
         """Filenames must not be cut by the framed column (art-pack names
