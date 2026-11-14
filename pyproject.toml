@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "courierhst"
+version = "0.1.0"
+description = "Console screensaver: dial up an early-90s warez BBS on a 14.4k USR Courier HST"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+test = ["pyte"]
+
+[project.scripts]
+courierhst = "courierhst.__main__:main"
+
+[tool.setuptools]
+packages = ["courierhst"]
