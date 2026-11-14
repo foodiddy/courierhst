@@ -213,7 +213,7 @@ class Committed(unittest.TestCase):
                 "art.png", "gfiles.png", "statusbar.png"}
 
     def test_exact_file_set(self):
-        self.assertEqual(set(os.listdir(MEDIA)), self.EXPECTED)
+        self.assertEqual(set(os.listdir(MEDIA)), self.EXPECTED | {"header.jpg"})
 
     def test_tracked_in_git(self):
         r = subprocess.run(["git", "ls-files", "docs/media", "tools"], cwd=ROOT,
@@ -221,8 +221,9 @@ class Committed(unittest.TestCase):
         if r.returncode != 0:
             self.skipTest("no git")
         tracked = set(r.stdout.split())
-        for n in self.EXPECTED:
+        for n in self.EXPECTED | {"header.jpg"}:
             self.assertIn("docs/media/" + n, tracked)
+        self.assertFalse([t for t in tracked if t.endswith("header-src.png")])
         for n in ("tools/render_media.py", "tools/fonts/LICENSE.txt",
                   "tools/fonts/Px437_IBM_VGA_8x16.ttf"):
             self.assertIn(n, tracked)
@@ -310,11 +311,20 @@ class Text(unittest.TestCase):
         self.assertEqual(heads[:3], ["## Screenshots", "## Install", "## Run"])
         sec = re.search(r"(?ms)^## Screenshots\n(.*?)(?=^## )", text).group(1)
         for n in os.listdir(MEDIA):
+            if n == "header.jpg":
+                continue
             self.assertRegex(sec, r"!\[[^\]]*\]\(docs/media/%s\)" % re.escape(n))
         self.assertIn("pip install '.[media]'", sec)
         self.assertIn("python3 tools/render_media.py --out docs/media", sec)
         self.assertIn("Px437 IBM VGA 8x16 from The Ultimate Oldschool PC Font Pack by VileR "
                       "(int10h.org), CC BY-SA 4.0", sec)
+
+    def test_readme_header_banner(self):
+        with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as f:
+            lines = [l for l in f.read().split("\n") if l.strip()]
+        self.assertEqual(lines[0],
+                         "![courierhst: a 14.4k modem dreaming of BBSes](docs/media/header.jpg)")
+        self.assertEqual(lines[1], "# courierhst")
 
     def test_licence(self):
         with open(os.path.join(ROOT, "tools", "fonts", "LICENSE.txt"), encoding="utf-8") as f:
@@ -342,6 +352,49 @@ class Text(unittest.TestCase):
             self.assertIn(flag, text)
         self.assertIn("COLS, ROWS = 80, 26", text)
         self.assertIn("CW, CH = 8, 16", text)
+
+
+HEADER = os.path.join(MEDIA, "header.jpg")
+HEADER_SRC = os.path.join(os.environ.get("FOUNDRY_SHARED", "/nonexistent"),
+                          "header", "header-src.png")
+
+
+class HeaderBanner(unittest.TestCase):
+    def test_size_on_disk(self):
+        self.assertTrue(os.path.isfile(HEADER))
+        self.assertLess(os.path.getsize(HEADER), 300 * 1024)
+        self.assertGreater(os.path.getsize(HEADER), 20 * 1024)
+
+    def test_jpeg_magic(self):
+        with open(HEADER, "rb") as f:
+            self.assertEqual(f.read(3), b"\xff\xd8\xff")
+
+    @unittest.skipIf(Image is None and importlib.util.find_spec("PIL") is None, "Pillow needed")
+    def test_image_properties(self):
+        from PIL import Image as I
+        with I.open(HEADER) as im:
+            im.load()
+            self.assertEqual(im.format, "JPEG")
+            self.assertEqual(im.mode, "RGB")
+            self.assertEqual(im.width, 1280)
+            self.assertAlmostEqual(im.height, 640, delta=2)
+            self.assertNotIn("exif", im.info)
+            self.assertEqual(len(im.getexif()), 0)
+            small = im.convert("RGB").resize((32, 16))
+        cols = small.getcolors(1 << 16)
+        self.assertGreater(len(cols), 50)
+
+    @unittest.skipIf(Image is None and importlib.util.find_spec("PIL") is None, "Pillow needed")
+    def test_matches_source(self):
+        if not os.path.isfile(HEADER_SRC):
+            self.skipTest("source PNG not available")
+        from PIL import Image as I, ImageChops as C, ImageStat as S
+        with I.open(HEADER_SRC) as src, I.open(HEADER) as im:
+            self.assertAlmostEqual(im.height / im.width, src.height / src.width, delta=0.005)
+            a = src.convert("RGB").resize((128, 64))
+            b = im.convert("RGB").resize((128, 64))
+        mean = sum(S.Stat(C.difference(a, b)).mean) / 3
+        self.assertLess(mean, 6)
 
 
 def hack_files():

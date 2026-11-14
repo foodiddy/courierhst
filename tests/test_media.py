@@ -41,6 +41,18 @@ class RenderMedia(unittest.TestCase):
             self.assertEqual(bar.format, "PNG")
             self.assertEqual(bar.width, 640)
 
+    def test_telegard_shot_has_time_left_value(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("render_media_tg", SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        needles = mod.TELEGARD_NEEDLES
+        chunks = mod.capture(1, "telegard", mod.FAST, stop=mod.has(*needles), idle=None)
+        screen = mod.first_match(chunks, needles, mod.TELEGARD_EXTRA)
+        self.assertIsNotNone(screen)
+        text = "\n".join(screen.display)
+        self.assertRegex(text, r"Time Left: +\d+ :")
+
     def test_committed_files(self):
         for name in EXPECTED:
             self.assertTrue(os.path.isfile(os.path.join(MEDIA, name)), name)
@@ -48,6 +60,11 @@ class RenderMedia(unittest.TestCase):
             path = os.path.join(MEDIA, name)
             with self.subTest(name=name):
                 with Image.open(path) as im:
+                    if name == "header.jpg":
+                        self.assertEqual(im.format, "JPEG")
+                        self.assertEqual(im.width, 1280)
+                        self.assertLess(os.path.getsize(path), 300 * 1024)
+                        continue
                     self.assertEqual(im.width, 640)
                     if name.endswith(".gif"):
                         self.assertLess(os.path.getsize(path), 3 * 1024 * 1024)
