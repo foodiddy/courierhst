@@ -1,0 +1,48 @@
+==============================================================================
+      THE REGIONAL BBS LIST  --  UPDATED 06-93  --  COMPILED BY MAXBAUD
+==============================================================================
+
+  Every board here is made up for this list, and the numbers are all in the
+  555-01xx block, so dont bother dialing. Call your OWN local boards!
+
+  NAME                      PHONE      SOFTWARE    NODES  TOP BAUD  HOURS
+  ------------------------- ---------- ----------- -----  --------  -------
+  The Silent Archive        555-0142   Renegade       2   14400     24
+  Neon Graveyard            555-0117   Telegard       1   14400     24
+  Phantom Exchange          555-0163   Mystic         4   16800     24
+  Iron Lung BBS             555-0108   PCBoard        3   14400     24
+  The Rusty Modem           555-0155   Renegade       1    9600     18-06
+  Midnight Courier          555-0121   Telegard       2   14400     24
+  Static Cling Systems      555-0179   Mystic         1   14400     22-08
+  Vector Palace             555-0134   Renegade       6   16800     24
+  Cobalt Cellar             555-0190   PCBoard        1    2400     20-06
+  Dragon's Dungeon          555-0126   Telegard       2    9600     24
+  Pixel Harbor              555-0148   Mystic         3   14400     24
+  Byte Me BBS               555-0102   Renegade       1    2400     21-07
+  The Last Sector           555-0171   PCBoard        2   14400     24
+  Gigabyte Gulch            555-0185   Telegard       4   16800     24
+  Hex Marks The Spot        555-0113   Mystic         1   14400     24
+
+  KEY
+  ---
+    Hours are local time. 24 means always up, unless the power flickers.
+    Nodes is how many callers can be on at once. More is better.
+    Top baud is what the fastest modem on that board can do. 16800 is
+    HST Dual Standard, 14400 is v.32bis or HST, and 9600 is v.32.
+
+  WHAT YOU CAN FIND THERE
+  -----------------------
+    Vector Palace .... Big file areas, ANSi packs, and a fast door game
+    Pixel Harbor ..... ANSi art, demos, and friendly users
+    Iron Lung ........ Hardware swap, programming, and tech talk
+    Byte Me .......... Chat and message bases. No files at all. Just talk.
+
+  LIST RULES
+  ----------
+    1. Send me your board and I will add it. Tell me nodes and hours.
+    2. Boards go off the list after 3 months of busy signals or voice
+       answers. If your board is down, tell me when it will be back.
+    3. No pay boards. No "call for the cool stuff" boards. Just boards.
+
+  Updates every month if the phone bill allows. Leave mail to MaxBaud at
+  The Last Sector (555-0171) or Midnight Courier (555-0121).

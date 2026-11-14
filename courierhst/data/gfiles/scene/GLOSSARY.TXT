@@ -1,0 +1,35 @@
+        THE COURIER'S GLOSSARY  --  WORDS YOU WILL HEAR ON THE BOARDS
+        ============================================================
+
+  Brand new here? Here is what everybody is talking about, in plain English.
+
+  0-DAY ........ A release that is less than a day old. Also what the lamers
+                 claim about stuff that is really three weeks old.
+  ANSi ......... Colourful text art. Made with a drawing program, viewed with
+                 a driver. The reason your screen looks like a rainbow.
+  BAUD ......... How fast your modem talks. 2400 is slow. 14400 is elite.
+                 28800 is a rumour.
+  BUSY ......... What you hear when a good board has one node. Redial. Again.
+  COURIER ...... Someone who carries releases from board to board. Needs
+                 patience, a fast modem, and parents who dont check the phone.
+  DISTRO SITE .. A board that receives releases early and passes them on.
+  DIZ .......... Short for FILE_ID.DIZ, the description inside an archive.
+  ELITE ........ Cool. Also spelled 3L1T3 by people who try too hard.
+  FLAME ........ A rude public message. Dont write them, dont answer them.
+  GREETS ....... The list of groups you wave at in the NFO. Be polite.
+  HST .......... High Speed Technology, a USR modem protocol. Fast one way.
+  LAMER ........ Somebody who takes and never gives. Or who types in ALL CAPS.
+  LEECH ........ Downloads everything, uploads nothing. Ratios exist for them.
+  NFO .......... The info file that comes with a release. Credits and notes.
+  NODE ......... One phone line into a board. More nodes, fewer busy signals.
+  NUKE ......... A release marked bad (broken, fake, or old). Gets deleted.
+  RATIO ........ How much you must upload compared to what you download.
+  SUPPLIER ..... The person who gets the original, first. Everything starts
+                 with them.
+  VALIDATE ..... When the sysop checks your upload and gives you credit.
+  WAREZ ........ Software that gets passed around. Spelled with a Z because
+                 that is how the cool kids spell it.
+  ZMODEM ....... The file transfer protocol with crash recovery. Use it.
+
+  Missing a word? Leave a note to Sector 7 in the Courier Lounge base and
+  it will go in the next edition.

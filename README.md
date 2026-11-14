@@ -85,6 +85,17 @@ TRAPALRM() { courierhst }
 (bash's `TMOUT` logs the shell out instead of running a hook, so on bash use
 tmux.)
 
+## G-Files (text files)
+
+Every board has a *Text Files/G-Files* entry (`T`, or `TF` on PCBoard) that
+browses a small library of old-school text files: scene NFOs, BBS lists and
+ads, rants and humor. To add your own, drop a plain ASCII or CP437 `.txt` file
+(at most 79 columns per line) into `courierhst/data/gfiles/<section>/`, where
+`<section>` is `scene`, `bbs`, `rants` or `misc`. A new folder makes a new
+section. Optionally add a line to that folder's `files.bbs` (filename, then a
+description of up to 45 characters); without one, the first non-blank line of
+the file is used. No code changes are needed.
+
 ## Development
 
 The program itself has no dependencies (stdlib only, Python 3.8+). Run the

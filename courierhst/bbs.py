@@ -3,7 +3,7 @@
 import random
 import time
 
-from . import ansi, art, content, doors, logos
+from . import ansi, art, content, doors, gfiles, logos
 from .ansi import (box, center, elite, fade_bar, gradient_rule, key_hints,
                    numbered_item, rpad, section_header)
 
@@ -78,11 +78,12 @@ MAIN_CMDS = [
     ("D", "Door Games", "doors"), ("L", "Last Callers", "last"),
     ("O", "OneLiners", "oneliners"), ("B", "Bulletins", "bulletins"),
     ("W", "Who's Online", "who"), ("Y", "Your Stats", "stats"),
-    ("C", "Page Sysop", "page"), ("G", "Goodbye", "bye"),
+    ("C", "Page Sysop", "page"), ("T", "Text Files/G-Files", "gfiles"),
+    ("G", "Goodbye", "bye"),
 ]
 PCB_KEYS = {"msgs": "R", "files": "F", "doors": "OPEN", "last": "LC",
             "oneliners": "1L", "bulletins": "B", "who": "WHO", "stats": "V",
-            "page": "O", "bye": "G"}
+            "page": "O", "gfiles": "TF", "bye": "G"}
 
 
 def main_menu(b):
@@ -134,9 +135,10 @@ def main_menu(b):
            ("F", "File Directories", "LC", "Last Callers"),
            ("OPEN", "Open a Door", "1L", "One-Liners"),
            ("WHO", "Who's on-line", "V", "View Settings"),
-           ("O", "Page Sysop", "G", "Goodbye (hang up)")]
+           ("O", "Page Sysop", "G", "Goodbye (hang up)"),
+           ("TF", "Text Files/G-Files", "", "")]
     for k1, l1, k2, l2 in pcb:
-        out.append(f"  |15{rpad(k1, 5)}|03{rpad(l1, 28)}|15{rpad(k2, 5)}|03{l2}")
+        out.append(f"  |15{rpad(k1, 5)}|03{rpad(l1, 28)}|15{rpad(k2, 5)}|03{l2}".rstrip())
     out.append("")
     return out
 
@@ -265,6 +267,7 @@ class Session:
     def _plan(self, n):
         r = self.rng
         pool = (["files"] * 5 + ["msgs"] * 4 + ["doors"] * 4 +
+                ["gfiles"] * 2 +
                 ["last", "oneliners", "bulletins", "who", "stats", "page"])
         acts = []
         while len(acts) < n:
@@ -275,7 +278,8 @@ class Session:
         if "files" not in acts:
             acts[r.randrange(len(acts))] = "files"
         if "doors" not in acts and r.random() < 0.7:
-            acts[r.randrange(len(acts))] = "doors"
+            spare = [i for i, x in enumerate(acts) if x != "files"]
+            acts[r.choice(spare)] = "doors"
         return acts
 
     def show_main(self):
@@ -607,7 +611,8 @@ class Session:
         total = r.randint(200, 2000)
         start = total - r.randint(3, 30)
         for i in range(r.randint(2, 4)):
-            m = content.message(r, b.name)
+            m = (content.scene_message if base == "Scene Chatter"
+                 else content.message)(r, b.name)
             num = start + i
             out = [CLS,
                    f"|{b.lo:02d}╔══ |15{base} |{b.lo:02d}" + "═" * (73 - len(base)),
@@ -861,7 +866,8 @@ class Session:
         total = r.randint(200, 2000)
         start = total - r.randint(3, 30)
         for i in range(r.randint(2, 4)):
-            m = content.message(r, b.name)
+            m = (content.scene_message if base == "Scene Chatter"
+                 else content.message)(r, b.name)
             num = start + i
             out = [CLS,
                    f"|{b.lo:02d}╔══ |15{base} |{b.lo:02d}" + "═" * (73 - len(base)),
@@ -919,6 +925,101 @@ class Session:
                 "", mystic_hint("MESSAGE FORUMS",
                                 "Select forum, type to search, or CTRL-Z for help.")]
         self.out(out)
+
+    # ---------------------------------------------------------------- g-files
+    def do_gfiles(self):
+        """Text-file library: section list, files.bbs-style listing, reader."""
+        b, r = self.b, self.rng
+        sections = gfiles.load()
+        if not sections:
+            self.out(["|07No text files available.", ""])
+            return
+        self.out(self.gfile_sections(sections))
+        pick = r.randrange(len(sections))
+        if b.style == "pcboard":
+            self.ask("|07Section |08(|15Q|08=quit) |07: |15", str(pick + 1))
+        else:
+            self.select(str(pick + 1), "GFiles", width=2)
+        sec = sections[pick]
+        files = sec["files"][:20]
+        self.out(self.gfile_listing(sec["title"], files))
+        self.line.rpause(3, 6)
+        self.step()
+        entry = r.choice(files)
+        if r.random() < 0.7:
+            answer = entry["name"]
+        else:
+            answer = str(files.index(entry) + 1)
+        if b.style == "pcboard":
+            self.ask("|14Filename or # to view |08(|15Q|08=quit)|14: |15", answer)
+        else:
+            if b.style == "mystic":
+                self.out([mystic_commands(["Number", "Filename", "Next", "Quit"]),
+                          mystic_hint("TEXT FILES", "Select a file, or CTRL-Z for help.")])
+            else:
+                self.out(key_hints([("#", "Select"), ("N", "Next"), ("Q", "Quit")]))
+            self.select(answer, "GFiles", width=12)
+        self.gfile_read(entry)
+
+    def gfile_sections(self, sections):
+        b = self.b
+        if b.style == "pcboard":
+            out = [CLS, center(f"|{b.lo:02d}▄▄ |15{elite('Text Files')} |{b.lo:02d}▄▄"), ""]
+            for i, sec in enumerate(sections, 1):
+                out.append(f"   |08[|{b.hi:02d}{i:>2}|08] |07{rpad(sec['title'], 28)}"
+                           f"|08{len(sec['files']):>4} files")
+            return out + [""]
+        if b.style == "mystic":
+            out = [CLS, "", f" |15{'NUM':<5}{rpad('SECTION', 30)}FILES", " |08" + "─" * 66]
+            for i, sec in enumerate(sections, 1):
+                out.append(f" |10{i:>3}  |07{rpad(sec['title'], 30)}|10{len(sec['files']):>3}")
+            return out + ["", mystic_hint("TEXT FILES", "Select a section, or CTRL-Z for help."), ""]
+        out = [CLS, section_header("G-FILES"), ""]
+        out += [numbered_item(i, sec["title"], f"{len(sec['files'])} files")
+                for i, sec in enumerate(sections, 1)]
+        return out + [""]
+
+    def gfile_listing(self, title, files):
+        """files.bbs-style listing, at most 20 rows."""
+        b = self.b
+        div_c, title_c, name_c, size_c, date_c = {
+            "renegade": (b.lo, 15, b.hi, 10, 11),
+            "telegard": (b.lo, 15, b.hi, 10, 11),
+            "mystic": (8, 10, 10, 7, 8),
+            "pcboard": (9, 14, 14, 2, 3),
+        }[b.style]
+        div = f" |{div_c:02d}" + "=" * 76
+        out = [CLS, div, center(f"|{title_c:02d}{title}"), div]
+        for f in files:
+            out.append(f" |{name_c:02d}{rpad(ansi.truncate(f['name'].upper(), 12), 13)}"
+                       f"|{size_c:02d}{f['size']:>7} |{date_c:02d}{f['date']}  "
+                       f"|07{ansi.truncate(f['desc'].replace('|', '||'), 45)}")
+        return out + [""]
+
+    def gfile_read(self, entry):
+        """Show 1-3 pages of 20 lines, then quit back to the listing."""
+        b, r = self.b, self.rng
+        lines = gfiles.read(entry) or ["(empty file)"]
+        pages = [lines[i:i + 20] for i in range(0, len(lines), 20)]
+        shown = min(len(pages), r.randint(1, 3))
+        for n in range(shown):
+            self.out([CLS, f"|{b.lo:02d}── |15{entry['name'].upper()} |08─ |07{entry['size']:,} bytes"
+                           f" |08─ |{b.hi:02d}Page {n + 1} of {len(pages)}"]
+                     + ["|07" + ln.replace("|", "||") for ln in pages[n]])
+            self.line.rpause(3.5, 7)
+            if n < shown - 1:
+                self.more()
+        self.step()
+        if b.style == "pcboard":
+            self.ask("|07Press (|15Q|07) to quit: |15", "Q")
+        else:
+            if b.style == "mystic":
+                self.out([mystic_commands(["Next", "Quit"]),
+                          mystic_hint("TEXT READER", "Press a key, or CTRL-Z for help.")])
+            else:
+                self.out(key_hints([("N", "Next page"), ("Q", "Quit")]))
+            self.select("Q", "GFiles", width=1)
+        self.out("")
 
     def do_files(self):
         b, r = self.b, self.rng
