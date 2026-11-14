@@ -21,10 +21,12 @@ import tty
 
 from . import ansi
 
-BBS_COLS = 80
+BBS_COLS = 80   # the classic DOS screen; content stays <= 79 so it never wraps
 BBS_ROWS = 25
 
+# One metered unit: an escape sequence, a form feed, a newline, or any char.
 _TOKEN_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x0c|\n|.", re.S)
+# Line-noise garbage: what a bad phone line splatters into the text stream.
 NOISE_CHARS = "}{~`#$@^&*![]|\\°ñæ«»▓∙"
 
 
@@ -33,11 +35,13 @@ class KeyPressed(Exception):
 
 
 class Line:
+    """The serial line plus the local terminal: meters, centres, draws status."""
+
     def __init__(self, bps=14400, center=True, status=True, noise=0.0007,
                  exit_on_key=True, out=None, warp=1.0):
         self.bps = bps
         self.warp = warp
-        self.cps = bps / 10.0 * warp
+        self.cps = bps / 10.0 * warp  # 8N1: 10 bits per byte on the wire
         self.center = center
         self.status_enabled = status
         self.noise = noise
@@ -47,8 +51,8 @@ class Line:
         self._old_tc = None
         self._old_winch = None
         self._buf = []
-        self._t = time.monotonic()
-        self._state = [7, 0]
+        self._t = time.monotonic()  # when the line is next free to send
+        self._state = [7, 0]  # [fg, bg] carried between pipe-code conversions
         self._resized = True
         self._last_status = 0.0
         # Status bar fields
@@ -66,11 +70,12 @@ class Line:
             raise
 
     def _enter(self):
+        """Raw-ish keyboard (no echo), resize handler, clear the screen."""
         if self.fd_in is not None:
             self._old_tc = termios.tcgetattr(self.fd_in)
             tty.setcbreak(self.fd_in)
             new = termios.tcgetattr(self.fd_in)
-            new[3] &= ~termios.ECHO
+            new[3] &= ~termios.ECHO  # cbreak alone leaves echo on
             termios.tcsetattr(self.fd_in, termios.TCSANOW, new)
         self._old_winch = signal.signal(signal.SIGWINCH, self._on_winch)
         self._raw("\x1b[?25h\x1b[0m\x1b[2J")
@@ -78,6 +83,7 @@ class Line:
         return self
 
     def __exit__(self, *exc):
+        """Put the terminal back the way we found it."""
         try:
             self._buf.clear()
             self._raw("\x1b[r\x1b[0m\x1b[2J\x1b[H\x1b[?25h")
@@ -99,6 +105,7 @@ class Line:
         self._resized = True
 
     def _layout(self):
+        """Work out where the BBS window sits, and set its scroll region."""
         self._resized = False
         try:
             cols, rows = os.get_terminal_size(self.out.fileno())
@@ -107,11 +114,15 @@ class Line:
         self.cols, self.rows = cols, rows
         want = BBS_ROWS + (1 if self.status_enabled else 0)
         self.left = max(0, (cols - BBS_COLS) // 2) if self.center else 0
+        # Keep the status bar below the BBS window, centred as a unit.
         self.top = max(0, (rows - want) // 2) + 1 if self.center else 1
         avail = rows - self.top + 1 - (1 if self.status_enabled else 0)
         self.height = max(3, min(BBS_ROWS, avail))
         self.bottom = self.top + self.height - 1
         self.status_row = self.bottom + 1
+        # DECSTBM confines scrolling to the BBS window; the status row lives
+        # outside it. DECSC/DECRC (ESC 7 / ESC 8) because setting the region
+        # homes the cursor.
         self._raw(f"\x1b7\x1b[{self.top};{self.bottom}r\x1b8")
         self._draw_status(force=True)
 
@@ -129,6 +140,7 @@ class Line:
         return f"\x1b[{self.top};{self.left + 1}H"
 
     def _newline(self):
+        # Centred mode: after CR/LF, hop right to the window's left edge.
         return "\r\n" + (f"\x1b[{self.left}C" if self.left else "")
 
     def cls_local(self):
@@ -151,6 +163,7 @@ class Line:
         self._flush()
 
     def _translate(self, tok):
+        """Map BBS-side control tokens onto the centred local window."""
         if tok == "\n":
             return self._newline()
         if tok == "\x0c":
@@ -160,6 +173,7 @@ class Line:
         return tok
 
     def _meter(self, data, cps):
+        """Emit tokens on a schedule: each costs bytes/cps seconds of line time."""
         now = time.monotonic()
         if self._t < now - 0.05:
             self._t = now  # line was idle; don't burst to catch up
@@ -168,8 +182,10 @@ class Line:
             if tok == "\x0c":
                 self._raw(self._translate(tok))
                 self._draw_status(force=True)
-                cost = 4
+                cost = 4  # a clear-screen is ESC[2J-ish on the wire
             else:
+                # Noise: per visible char, a small chance of 1-4 junk bytes
+                # first. They eat line time like real bytes would.
                 if (self.noise and len(tok) == 1 and tok not in "\n\r"
                         and random.random() < self.noise):
                     junk = "".join(random.choice(NOISE_CHARS)
@@ -179,6 +195,7 @@ class Line:
                 self._raw(self._translate(tok))
                 cost = len(tok)  # 1 byte per char, escapes cost their length
             self._t += per * cost
+            # Only sleep once we are measurably ahead; tiny sleeps are jitter.
             if self._t - time.monotonic() > 0.012:
                 self._flush()
                 self._wait_until(self._t)
@@ -186,6 +203,7 @@ class Line:
 
     # ------------------------------------------------------------------ time
     def _wait_until(self, t):
+        """Sleep to time t, ticking the clock and watching for resize/keys."""
         while True:
             if self._resized:
                 self._layout()
@@ -199,6 +217,7 @@ class Line:
             self._check_key(min(left, 0.25))
 
     def _check_key(self, timeout):
+        """Wait up to `timeout` seconds; any keypress ends the show."""
         if self.fd_in is None or not self.exit_on_key:
             time.sleep(timeout)
             return
@@ -228,16 +247,19 @@ class Line:
             self.send(ch)
 
     def type_hidden(self, text, mask="*"):
+        """Typing a password: the BBS echoes asterisks."""
         for _ in text:
             self.pause(random.uniform(0.07, 0.2))
             self.send(mask)
 
     def enter(self):
+        """Hit Return after a human-ish hesitation."""
         self.pause(random.uniform(0.15, 0.45))
         self.send("\n")
 
     # ------------------------------------------------------------------ status
     def _draw_status(self, force=False):
+        """Paint the Telix-ish status bar, at most once a second."""
         if not self.status_enabled or self.status_row > self.rows:
             return
         now = time.monotonic()
@@ -258,8 +280,9 @@ class Line:
             text = f" Dialing {name[:max(0, room)]}..." + tail
         else:
             text = " Offline" + tail
-        text = text.replace("|", "||")
+        text = text.replace("|", "||")  # the bar goes through pipe codes too
         bar = "|15|17" + ansi.rpad(ansi.truncate(text, width), width) + "|07|16"
         sgr_txt = ansi.pipe_to_ansi(bar, [7, 0])
+        # Save/restore the cursor so the BBS cursor never notices the bar.
         self._raw(f"\x1b7\x1b[{self.status_row};1H\x1b[0m\x1b[2K"
                   f"\x1b[{self.status_row};{self.left + 1}H{sgr_txt}\x1b[0m\x1b8")

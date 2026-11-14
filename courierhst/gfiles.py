@@ -31,6 +31,7 @@ def fake_date(name):
 
 
 def _read_text(path):
+    """Read a file as CP437, the way a DOS board would."""
     with open(path, "rb") as fh:
         return fh.read().decode("cp437", "replace")
 
@@ -64,6 +65,7 @@ def _first_line(path):
 
 
 def _folders(root):
+    """Known sections first, then any extra folders, title-cased."""
     try:
         found = sorted(d for d in os.listdir(root)
                        if os.path.isdir(os.path.join(root, d)))

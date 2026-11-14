@@ -19,13 +19,15 @@ class Board:
     STYLES = ["renegade", "renegade", "telegard", "mystic", "mystic", "pcboard"]
 
     def __init__(self, rng, user, style=None):
+        # Every draw below comes off the one seeded rng, in this order, so a
+        # given --seed always gets the same board. Reorder with care.
         self.rng = rng
         self.user = user
         self.name = content.bbs_name(rng)
         self.city, self.state, area = rng.choice(content.CITIES)
         self.phone = content.phone(rng, area)
         self.style = rng.choice(self.STYLES)
-        if style:
+        if style:  # forced style still consumes the draw above, keeping seeds stable
             self.style = style
         self.software = content.SOFTWARE[self.style]
         self.palette = rng.choice(list(ansi.PALETTES))
@@ -49,7 +51,8 @@ class Board:
         self.role = rng.choice(content.BOARD_ROLES)
         self.modem = rng.choice(["USR HST Dual Standard 16.8",
                                  "USR Courier HST 14.4", "USR HST DS 14.4"])
-        # keep last: drawing from rng earlier would shift seeded values
+        # Keep last: a draw anywhere earlier shifts every value after it,
+        # and seeded runs would stop matching their old boards.
         self.logo_style = rng.choice(logos.STYLES)
 
     def logo(self, text, width=78, max_rows=12):
@@ -87,6 +90,7 @@ PCB_KEYS = {"msgs": "R", "files": "F", "doors": "OPEN", "last": "LC",
 
 
 def main_menu(b):
+    """The main menu as lines, drawn in the board's own software style."""
     if b.style == "renegade":
         rows = []
         cmds = MAIN_CMDS
@@ -144,6 +148,7 @@ def main_menu(b):
 
 
 def prompt(b, area="Main"):
+    """The command prompt for the board's software style."""
     if b.style == "renegade":
         return (f"|08[|07{b.clock()}|08] |{b.lo:02d}[|{b.hi:02d}{area}|{b.lo:02d}] "
                 f"|08(|07Tl:|15{b.time_left()}|08) |07Command |08» |15")
@@ -171,6 +176,7 @@ def mystic_info(text):
 
 
 def key_for(b, action):
+    """The key that triggers `action` on this board."""
     if b.style == "pcboard":
         return PCB_KEYS[action]
     for k, _, a in MAIN_CMDS:
@@ -183,6 +189,7 @@ def key_for(b, action):
 # ==========================================================================
 
 class Session:
+    """One phone call: dial, log in, wander the menus, hang up."""
     def __init__(self, line, rng, user, xfer_speedup=30.0, style=None,
                  step_pause=DEFAULT_STEP_PAUSE):
         self.line = line
@@ -194,19 +201,21 @@ class Session:
 
     # convenience
     def out(self, lines):
+        """Send finished lines at line speed, clipped to 79 columns."""
         if isinstance(lines, str):
             lines = [lines]
         for ln in lines:
-            if ln == CLS:
+            if ln == CLS:  # form feed is passed whole; Line turns it into a clear
                 self.line.send(CLS)
             else:
-                self.line.sendln(ansi.truncate(ln, 79))
+                self.line.sendln(ansi.truncate(ln, 79))  # col 80 wraps on a real terminal
 
     def step(self):
         """Linger before the caller moves on to the next item."""
         self.line.pause(self.step_pause)
 
     def ask(self, text, answer, hidden=False, fast=False):
+        """Show a prompt, then "type" the answer and hit Return."""
         self.line.send(text)
         self.line.rpause(0.4, 1.6)
         if hidden:
@@ -232,6 +241,7 @@ class Session:
             L.enter()
 
     def more(self):
+        """Fake a "hit a key" pause prompt and erase it again."""
         L = self.line
         L.send("|07|16")
         L.send("|08[|15Pause|08] |07Hit a key... ")
@@ -240,6 +250,7 @@ class Session:
 
     # ---------------------------------------------------------------- run
     def run(self):
+        """One whole call from dial tone to NO CARRIER."""
         if not self.dial():
             return
         L = self.line
@@ -265,6 +276,7 @@ class Session:
             L.connect_speed = ""
 
     def _plan(self, n):
+        """Pick the menu actions for this call: no repeats back to back, always some files."""
         r = self.rng
         pool = (["files"] * 5 + ["msgs"] * 4 + ["doors"] * 4 +
                 ["gfiles"] * 2 +
@@ -291,6 +303,9 @@ class Session:
 
     # ---------------------------------------------------------------- dial
     def dial(self):
+        """Modem init, busy signals and redials, then CONNECT."""
+        # Dialing is the local terminal's doing, so it uses L.local (instant)
+        # rather than the metered line.
         L, b, r = self.line, self.b, self.rng
         L.cls_local()
         L.status_name = b.name
@@ -331,6 +346,7 @@ class Session:
 
     # ---------------------------------------------------------------- login
     def login(self):
+        """Banner, handle and password, then the new-mail and bulletin hoops."""
         L, b, r = self.line, self.b, self.rng
         L.send("\n")
         L.rpause(0.8, 1.6)
@@ -1131,6 +1147,7 @@ class Session:
         self.line.rpause(1, 2)
 
     def download(self, files):
+        """A Zmodem transfer, time-compressed by `xfer_speedup`."""
         L, b, r = self.line, self.b, self.rng
         self.out(["", "|07Protocols: |08(|15Z|08)|07modem  |08(|15Y|08)|07modem-G  "
                       "|08(|15H|08)|07SLink  |08(|15X|08)|07modem"])
@@ -1218,6 +1235,7 @@ class Session:
 
     # ---------------------------------------------------------------- bye
     def do_bye(self):
+        """Log off and drop carrier."""
         L, b, r = self.line, self.b, self.rng
         self.ask("|07Log off now? |08(|15Y|08/|15n|08) |15", "Y")
         name = art.pick(r, "bye")

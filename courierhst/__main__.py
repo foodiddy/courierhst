@@ -20,6 +20,7 @@ def _nonneg_float(text):
 
 
 def main(argv=None):
+    """Parse options, then place calls until a key is pressed."""
     p = argparse.ArgumentParser(
         prog="courierhst",
         description="Screensaver: dial up early-90s warez BBSes on a "
@@ -57,9 +58,10 @@ def main(argv=None):
     p.add_argument("--version", action="version", version=__version__)
     a = p.parse_args(argv)
 
-    if not sys.stdout.isatty():
+    if not sys.stdout.isatty():  # escape codes into a pipe help nobody
         p.error("stdout must be a terminal")
 
+    # One rng for the whole run; --seed makes the same boards and handles.
     rng = random.Random(a.seed)
     user = a.handle or content.handle(rng)
     try:

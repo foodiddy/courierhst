@@ -13,7 +13,8 @@ import re
 
 ESC = "\x1b"
 
-# DOS color index -> ANSI color number
+# DOS color index -> ANSI color number. DOS counts blue=1, green=2, red=4;
+# ANSI counts red=1, green=2, blue=4, so the bits come out swapped.
 _DOS_TO_ANSI = [0, 4, 2, 6, 1, 5, 3, 7]
 
 _PIPE_RE = re.compile(r"\|(\||\d\d)")
@@ -22,7 +23,7 @@ _RUN_RE = re.compile(r"(?:\|\d\d)+|\|\|")
 
 def sgr(fg, bg=0):
     """Full SGR for a DOS fg (0-15) / bg (0-7) pair."""
-    bold = "1;" if fg >= 8 else ""
+    bold = "1;" if fg >= 8 else ""  # DOS "high intensity" maps to bold
     return f"{ESC}[0;{bold}3{_DOS_TO_ANSI[fg & 7]};4{_DOS_TO_ANSI[bg & 7]}m"
 
 
@@ -45,7 +46,7 @@ def pipe_to_ansi(text, state=None):
             elif n <= 23:
                 bg = n - 16
         if [fg, bg] == state:
-            return ""
+            return ""  # no change, so no bytes
         state[0], state[1] = fg, bg
         return sgr(fg, bg)
 
@@ -83,6 +84,7 @@ def vlen(text):
 
 
 def center(text, width=79):
+    """Left-pad pipe-coded text to centre it in `width` columns."""
     pad = max(0, (width - vlen(text)) // 2)
     return " " * pad + text
 
@@ -181,6 +183,9 @@ def _text_width(text, sx):
 
 def _cell(ct, cb):
     """Render one character cell from top/bottom pixel colors (None=empty)."""
+    # Two pixels per cell: ▀ puts the top in the foreground, the background
+    # takes the bottom. Backgrounds stop at 7 (the bright bit means blink), so
+    # a bright bottom pixel has to become the foreground of a ▄ instead.
     if ct is None and cb is None:
         return "|07|16 "
     if cb is None:
@@ -217,7 +222,7 @@ def block_text(text, palette="cyan", sx=1, sy=1, shadow=True, maxw=79):
     h = len(px)
     w = len(px[0]) + (1 if shadow else 0)
     hh = h + (1 if shadow else 0)
-    if hh % 2:
+    if hh % 2:  # two pixel rows per text row
         hh += 1
     pal = PALETTES[palette]
     grid = [[None] * w for _ in range(hh)]
@@ -285,6 +290,7 @@ def fade_bar(width=78, colors=(8, 7, 15, 7, 8)):
 
 
 def gradient_rule(width=78, palette="cyan", char="─"):
+    """A horizontal rule fading through the palette and back."""
     pal = PALETTES[palette]
     seq = list(reversed(pal[1:])) + pal
     out = []

@@ -152,12 +152,14 @@ ONELINERS = [
 
 
 def bbs_name(rng=random):
+    """A made-up board name."""
     first = rng.choice(BBS_FIRST)
     name = f"{rng.choice(BBS_ADJ)} {rng.choice(BBS_NOUN)}"
     return (first + " " + name).strip()
 
 
 def handle(rng=random):
+    """A made-up scene handle, in one of three shapes."""
     r = rng.random()
     if r < 0.18:
         return rng.choice(HANDLE_SOLO)
@@ -167,13 +169,15 @@ def handle(rng=random):
 
 
 def phone(rng=random, area=None):
+    """A fictional number: the 555-01xx range is reserved for the movies."""
     if area is None:
         area = rng.choice(CITIES)[2]
     return f"1-{area}-555-01{rng.randint(0, 99):02d}"
 
 
 def date93(rng=random):
-    y = rng.choice([92, 93, 93, 93, 94])
+    """A random mm-dd-yy from 1992-94."""
+    y = rng.choice([92, 93, 93, 93, 94])  # weighted toward '93, the golden year
     return f"{rng.randint(1, 12):02d}-{rng.randint(1, 28):02d}-{y}"
 
 
@@ -311,6 +315,7 @@ TAGLINES = [
 
 
 def fill(s, ctx):
+    """Format a template, leaving it untouched if a field is missing."""
     try:
         return s.format(**ctx)
     except (KeyError, IndexError):
@@ -331,6 +336,7 @@ def message_context(rng, bbs):
 
 
 def message(rng, bbs):
+    """One board message, ready to display."""
     ctx = message_context(rng, bbs)
     subj, body = rng.choice(_MSG_TEMPLATES)
     return {

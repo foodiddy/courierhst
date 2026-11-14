@@ -15,8 +15,8 @@ def _runs(cells):
     out, fg, bg = [], 7, 0
     for ch, f, b in cells:
         if ch == " " and b == 0:
-            f = fg
-        if ch == "|":
+            f = fg  # a plain space shows no foreground; skip the colour change
+        if ch == "|":  # literal pipe must be escaped or it eats the next digits
             ch = "||"
         code = ""
         if b != bg:
@@ -49,11 +49,13 @@ def _centre(rows, width):
 
 def _mirror(half):
     """Left half rows (outer edge first) -> full symmetric rows."""
+    # Flip the half-block glyphs too, or the mirror image would be lopsided.
     swap = str.maketrans("▌▐▛▜", "▐▌▜▛")
     return [h + h[::-1].translate(swap) for h in half]
 
 
 class _Canvas:
+    """A tiny character grid for drawing pieces cell by cell."""
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.c = [[(" ", 7, 0)] * w for _ in range(h)]
@@ -280,7 +282,7 @@ _META = {
 
 
 def _pad(rows):
-    w = max(ansi.vlen(x) for x in rows)
+    w = max(ansi.vlen(x) for x in rows)  # ragged rows would skew side_by_side
     return [x + " " * (w - ansi.vlen(x)) for x in rows]
 
 
@@ -295,6 +297,7 @@ def piece(name):
 
 
 def pick(rng, use):
+    """A random piece name that is tagged for `use`."""
     names = sorted(n for n, p in PIECES.items() if use in p["uses"])
     return rng.choice(names)
 
@@ -305,6 +308,7 @@ def credit(name):
 
 
 def side_by_side(left, right, gap=2, width=79):
+    """Place two blocks of rows next to each other, cut to `width`."""
     lw = max((ansi.vlen(x) for x in left), default=0)
     out = []
     for i in range(max(len(left), len(right))):
