@@ -181,7 +181,7 @@ def starlane(s):
         warps, port = sector_view()
         if port and r.random() < 0.7:
             s.ask(cmd_prompt(), "P", fast=True)
-            trade(s, port, holds, cargo, credits)
+            trade(s, port, holds, cargo)
             credits += r.randint(-2000, 9000)
         nxt = r.choice(warps)
         s.ask(cmd_prompt(), str(nxt), fast=True)
@@ -196,7 +196,7 @@ def starlane(s):
     L.rpause(1, 2)
 
 
-def trade(s, port, holds, cargo, credits):
+def trade(s, port, holds, cargo):
     L, r = s.line, s.rng
     goods = ["Fuel Ore", "Organics", "Equipment"]
     s.out(["", "|11<|15T|11> Trade at this port", "", "|09Docking...", ""])
