@@ -45,6 +45,7 @@ class Line:
         self.out = out or sys.stdout
         self.fd_in = sys.stdin.fileno() if sys.stdin.isatty() else None
         self._old_tc = None
+        self._old_winch = None
         self._buf = []
         self._t = time.monotonic()
         self._state = [7, 0]
@@ -58,24 +59,40 @@ class Line:
 
     # ------------------------------------------------------------------ setup
     def __enter__(self):
+        try:
+            return self._enter()
+        except BaseException:
+            self.__exit__()
+            raise
+
+    def _enter(self):
         if self.fd_in is not None:
             self._old_tc = termios.tcgetattr(self.fd_in)
             tty.setcbreak(self.fd_in)
             new = termios.tcgetattr(self.fd_in)
             new[3] &= ~termios.ECHO
             termios.tcsetattr(self.fd_in, termios.TCSANOW, new)
-        signal.signal(signal.SIGWINCH, self._on_winch)
+        self._old_winch = signal.signal(signal.SIGWINCH, self._on_winch)
         self._raw("\x1b[?25h\x1b[0m\x1b[2J")
         self._layout()
         return self
 
     def __exit__(self, *exc):
-        self._raw("\x1b[r\x1b[0m\x1b[2J\x1b[H\x1b[?25h")
-        self._flush()
-        if self._old_tc is not None:
-            termios.tcsetattr(self.fd_in, termios.TCSADRAIN, self._old_tc)
-            # swallow the key that woke us up
-            termios.tcflush(self.fd_in, termios.TCIFLUSH)
+        try:
+            self._buf.clear()
+            self._raw("\x1b[r\x1b[0m\x1b[2J\x1b[H\x1b[?25h")
+            self._flush()
+        except (OSError, ValueError):
+            pass
+        finally:
+            signal.signal(signal.SIGWINCH, self._old_winch or signal.SIG_DFL)
+            if self._old_tc is not None:
+                try:
+                    termios.tcsetattr(self.fd_in, termios.TCSADRAIN, self._old_tc)
+                    # swallow the key that woke us up
+                    termios.tcflush(self.fd_in, termios.TCIFLUSH)
+                except termios.error:
+                    pass
         return False
 
     def _on_winch(self, *_):
@@ -160,7 +177,7 @@ class Line:
                     self._raw(junk)
                     self._t += per * len(junk)
                 self._raw(self._translate(tok))
-                cost = len(tok.encode("cp437", "replace")) if len(tok) == 1 else len(tok)
+                cost = len(tok)  # 1 byte per char, escapes cost their length
             self._t += per * cost
             if self._t - time.monotonic() > 0.012:
                 self._flush()
@@ -243,6 +260,6 @@ class Line:
             mid, room = "", width - ansi.vlen(left + right) - 2
         bar = left + mid + f"|11 {name[:max(0, room)]}"
         bar = ansi.rpad(bar, width - ansi.vlen(right)) + right
-        sgr_txt = ansi.pipe_to_ansi(bar, [7, 0])
+        sgr_txt = ansi.pipe_to_ansi(ansi.truncate(bar, width), [7, 0])
         self._raw(f"\x1b7\x1b[{self.status_row};1H\x1b[0m\x1b[2K"
                   f"\x1b[{self.status_row};{self.left + 1}H{sgr_txt}\x1b8")

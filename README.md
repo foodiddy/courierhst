@@ -74,3 +74,19 @@ TRAPALRM() { courierhst }
 
 (bash's `TMOUT` logs the shell out instead of running a hook, so on bash use
 tmux.)
+
+## Development
+
+The program itself has no dependencies (stdlib only, Python 3.8+). Run the
+tests with:
+
+```sh
+python3 -m unittest discover -s tests
+```
+
+The unit tests (`ansi`, `modem.Line` metering and status bar) need nothing
+extra. The pty acceptance tests (`tests/test_session_pty.py`) run the whole
+program for seeds 1-20 at 80x26, 80x24 and 120x40 and check the output with
+the `pyte` VT emulator; they are skipped if `pyte` is missing. Install it
+with `pip install pyte` (or `pip install -e '.[test]'`). The full pty run
+takes about 30 seconds.

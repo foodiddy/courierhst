@@ -196,8 +196,23 @@ def _cell(ct, cb):
     return f"|{ct:02d}|{16 + (cb & 7)}▀"
 
 
-def block_text(text, palette="cyan", sx=1, sy=1, shadow=True):
-    """Render text in the block font. Returns list of pipe-coded lines."""
+def block_text(text, palette="cyan", sx=1, sy=1, shadow=True, maxw=79):
+    """Render text in the block font. Returns list of pipe-coded lines.
+    Text too wide for `maxw` columns is word-wrapped into stacked blocks."""
+    if _text_width(text, sx) + (1 if shadow else 0) > maxw and " " in text:
+        words, parts, cur = text.split(), [], ""
+        for w in words:
+            trial = (cur + " " + w).strip()
+            if cur and _text_width(trial, sx) + 1 > maxw:
+                parts.append(cur)
+                cur = w
+            else:
+                cur = trial
+        parts.append(cur)
+        out = []
+        for part in parts:
+            out += block_text(part, palette, sx, sy, shadow, maxw)
+        return out
     px = _glyph_pixels(text, sx, sy)
     h = len(px)
     w = len(px[0]) + (1 if shadow else 0)
