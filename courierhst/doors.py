@@ -55,6 +55,7 @@ def shadowmire(s):
     plan = ["V", "F", "F"] + r.sample(["F", "D", "H", "F"], r.randint(1, 3)) + ["Q"]
     for cmd in plan:
         town_menu()
+        s.step()
         s.ask(town_prompt(), cmd, fast=True)
         if cmd == "V":
             s.out([""] + box([
@@ -180,15 +181,18 @@ def starlane(s):
     for _ in range(r.randint(2, 4)):
         warps, port = sector_view()
         if port and r.random() < 0.7:
+            s.step()
             s.ask(cmd_prompt(), "P", fast=True)
             trade(s, port, holds, cargo)
             credits += r.randint(-2000, 9000)
         nxt = r.choice(warps)
+        s.step()
         s.ask(cmd_prompt(), str(nxt), fast=True)
         s.out(["", f"|07Warping to sector |15{nxt}|07..."])
         L.rpause(0.6, 1.2)
         sector = nxt
         turns -= 1
+    s.step()
     s.ask(cmd_prompt(), "Q", fast=True)
     s.ask("|07Confirmed? |08(|15Y|08/|15N|08) |15", "Y")
     s.out(["", f"|07Credits: |15{credits:,}  |07Turns left: |15{turns}",

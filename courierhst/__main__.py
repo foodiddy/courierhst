@@ -5,8 +5,18 @@ import random
 import sys
 
 from . import __version__, content
-from .bbs import Session
+from .bbs import DEFAULT_STEP_PAUSE, Session
 from .modem import KeyPressed, Line
+
+
+def _nonneg_float(text):
+    try:
+        v = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid number: {text!r}")
+    if not v >= 0:
+        raise argparse.ArgumentTypeError("must be >= 0")
+    return v
 
 
 def main(argv=None):
@@ -26,6 +36,11 @@ def main(argv=None):
                    help="line-noise probability per character (0 disables)")
     p.add_argument("--xfer-speedup", type=float, default=40.0,
                    help="time compression for Zmodem downloads (1 = real time)")
+    p.add_argument("--step-pause", type=_nonneg_float, metavar="SECONDS",
+                   default=DEFAULT_STEP_PAUSE,
+                   help="seconds to linger before moving on to the next menu "
+                        "command, message, file prompt or door move "
+                        "(default 5, 0 disables; scaled by --warp)")
     p.add_argument("--no-exit-on-key", action="store_true",
                    help="ignore keypresses (exit with Ctrl-C)")
     p.add_argument("--calls", type=int, default=0,
@@ -50,7 +65,8 @@ def main(argv=None):
             n = 0
             while not a.calls or n < a.calls:
                 Session(line, rng, user, xfer_speedup=a.xfer_speedup,
-                        style=a.board_style).run()
+                        style=a.board_style,
+                        step_pause=a.step_pause).run()
                 n += 1
                 line.pause(rng.uniform(2, 5))
     except (KeyPressed, KeyboardInterrupt):

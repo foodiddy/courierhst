@@ -48,6 +48,7 @@ Press any key to exit.
 | `--xfer-speedup X` | time compression for Zmodem downloads (default 40, 1 = real time) |
 | `--no-center` / `--no-status` | draw at top-left / hide the status bar |
 | `--calls N` | exit after N calls (default: forever) |
+| `--step-pause SECONDS` | seconds the caller lingers before each next step: menu command, message, file prompt, door move (default 5, 0 disables; `--warp` scales it) |
 | `--warp X` | speed everything up (for previewing) |
 | `--board-style S` | force the BBS software style: `renegade`, `telegard`, `mystic` or `pcboard` (default: random mix) |
 | `--no-exit-on-key` | only Ctrl-C exits |

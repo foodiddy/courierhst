@@ -9,6 +9,9 @@ from .ansi import (box, center, elite, fade_bar, gradient_rule, key_hints, logo,
 
 CLS = "\x0c"
 
+# Seconds the simulated caller lingers before moving on to the next item.
+DEFAULT_STEP_PAUSE = 5.0
+
 
 class Board:
     """One fictional BBS, with its own look and software flavour."""
@@ -172,8 +175,10 @@ def key_for(b, action):
 # ==========================================================================
 
 class Session:
-    def __init__(self, line, rng, user, xfer_speedup=30.0, style=None):
+    def __init__(self, line, rng, user, xfer_speedup=30.0, style=None,
+                 step_pause=DEFAULT_STEP_PAUSE):
         self.line = line
+        self.step_pause = step_pause
         self.rng = rng
         self.user = user
         self.xfer_speedup = xfer_speedup
@@ -188,6 +193,10 @@ class Session:
                 self.line.send(CLS)
             else:
                 self.line.sendln(ansi.truncate(ln, 79))
+
+    def step(self):
+        """Linger before the caller moves on to the next item."""
+        self.line.pause(self.step_pause)
 
     def ask(self, text, answer, hidden=False, fast=False):
         self.line.send(text)
@@ -235,9 +244,11 @@ class Session:
             actions = self._plan(n)
             for act in actions:
                 self.show_main()
+                self.step()
                 self.ask(prompt(self.b), key_for(self.b, act), fast=True)
                 getattr(self, "do_" + act)()
             self.show_main()
+            self.step()
             self.ask(prompt(self.b), key_for(self.b, "bye"), fast=True)
             self.do_bye()
         finally:
@@ -601,6 +612,7 @@ class Session:
             self.line.rpause(3.5, 7)
             last = i == 2 or r.random() < 0.3
             key = "Q" if last else "N"
+            self.step()
             self.ask(f"|{b.lo:02d}[|15N|{b.lo:02d}]ext, [|15R|{b.lo:02d}]eply, [|15A|{b.lo:02d}]gain, "
                      f"[|15Q|{b.lo:02d}]uit: |15", key)
             if last:
@@ -693,15 +705,18 @@ class Session:
                    if (sid is not None and e[5] == sid) or i == pick]
             flagged = [(entries[i][0], entries[i][1]) for i in idx]
             nums = " ".join(str(i + 1) for i in idx)
+            self.step()
             self.ask(f"|{b.lo:02d}[|15N|{b.lo:02d}]ext, [|15F|{b.lo:02d}]lag, [|15V|{b.lo:02d}]iew, "
                      f"[|15D|{b.lo:02d}]ownload, [|15Q|{b.lo:02d}]uit: |15", "F")
             self.ask("|07Flag which file(s)? |15", nums)
             tot = sum(s for _, s in flagged)
             self.out(f"|07Flagged |15{len(flagged)}|07 file(s), |15{tot:,}k|07  "
                      f"Est. |15{tot * 1024 // 1650 // 60}:{tot * 1024 // 1650 % 60:02d}|07 at 14400")
+            self.step()
             self.ask(f"|{b.lo:02d}[|15N|{b.lo:02d}]ext, [|15F|{b.lo:02d}]lag, [|15V|{b.lo:02d}]iew, "
                      f"[|15D|{b.lo:02d}]ownload, [|15Q|{b.lo:02d}]uit: |15", "D")
         else:
+            self.step()
             self.ask(f"|{b.lo:02d}[|15N|{b.lo:02d}]ext, [|15F|{b.lo:02d}]lag, [|15V|{b.lo:02d}]iew, "
                      f"[|15D|{b.lo:02d}]ownload, [|15Q|{b.lo:02d}]uit: |15", "Q")
         return flagged
@@ -862,6 +877,7 @@ class Session:
             self.line.rpause(3.5, 7)
             last = i == 2 or r.random() < 0.3
             key = "Q" if last else "N"
+            self.step()
             keys = [("N", "Next"), ("R", "Reply"), ("A", "Again"), ("Q", "Quit")]
             if b.style == "mystic":
                 self.out([mystic_commands(["Next", "Reply", "Again", "Quit"]),
@@ -954,6 +970,7 @@ class Session:
                  ("Q", "Quit")]
 
         def command(key):
+            self.step()
             if b.style == "mystic":
                 self.out([mystic_commands(["Next", "Flag", "View", "Download", "Quit"]),
                           mystic_hint("FILE LISTING", "Select a command, or CTRL-Z for help.")])
