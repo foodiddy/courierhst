@@ -32,6 +32,9 @@ def main(argv=None):
                    help="number of BBS calls before exiting (0 = forever)")
     p.add_argument("--warp", type=float, default=1.0,
                    help="speed up everything by this factor (for previews)")
+    p.add_argument("--board-style", choices=["renegade", "telegard", "mystic", "pcboard"],
+                   help="force every board to this BBS software style "
+                        "(default: random mix)")
     p.add_argument("--version", action="version", version=__version__)
     a = p.parse_args(argv)
 
@@ -46,7 +49,8 @@ def main(argv=None):
                   warp=a.warp) as line:
             n = 0
             while not a.calls or n < a.calls:
-                Session(line, rng, user, xfer_speedup=a.xfer_speedup).run()
+                Session(line, rng, user, xfer_speedup=a.xfer_speedup,
+                        style=a.board_style).run()
                 n += 1
                 line.pause(rng.uniform(2, 5))
     except (KeyPressed, KeyboardInterrupt):

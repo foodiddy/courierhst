@@ -13,7 +13,7 @@ Each call:
 - **Logs in**: mailer "press ESC twice", ANSI detection, a block-letter ANSI
   logo with gradients and drop shadows, handle/password/phone check, logon
   stats, mail scan, last callers, oneliners
-- **Browses** with period menus in three flavours (Renegade-, Telegard- and
+- **Browses** with period menus in four flavours (Renegade-, Telegard-, Mystic- and
   PCBoard-style), picking from:
   - message bases (scene chatter, courier wanted ads, FS: modems, origin lines)
   - file areas: 0-day and game releases as multi-disk 8.3 ZIP sets with group
@@ -49,6 +49,7 @@ Press any key to exit.
 | `--no-center` / `--no-status` | draw at top-left / hide the status bar |
 | `--calls N` | exit after N calls (default: forever) |
 | `--warp X` | speed everything up (for previewing) |
+| `--board-style S` | force the BBS software style: `renegade`, `telegard`, `mystic` or `pcboard` (default: random mix) |
 | `--no-exit-on-key` | only Ctrl-C exits |
 
 The art uses CP437 block and box characters, which the Linux console's
