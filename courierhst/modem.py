@@ -55,7 +55,6 @@ class Line:
         self.online_since = None
         self.status_name = ""
         self.connect_speed = ""
-        self.offline_msg = "OFFLINE"
         self.dialing = False
 
     # ------------------------------------------------------------------ setup
