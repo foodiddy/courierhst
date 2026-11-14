@@ -33,7 +33,7 @@ class KeyPressed(Exception):
 
 
 class Line:
-    def __init__(self, bps=14400, center=True, status=True, noise=0.002,
+    def __init__(self, bps=14400, center=True, status=True, noise=0.0007,
                  exit_on_key=True, out=None, warp=1.0):
         self.bps = bps
         self.warp = warp

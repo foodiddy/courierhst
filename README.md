@@ -44,7 +44,7 @@ Press any key to exit.
 | `--bps N` | line speed (default 14400; try 2400 for pain) |
 | `--handle NAME` | your handle (default: random) |
 | `--seed N` | repeatable run |
-| `--noise P` | line-noise chance per character (default 0.0015, 0 = off) |
+| `--noise P` | line-noise chance per character (default 0.0007, 0 = off) |
 | `--xfer-speedup X` | time compression for Zmodem downloads (default 40, 1 = real time) |
 | `--no-center` / `--no-status` | draw at top-left / hide the status bar |
 | `--calls N` | exit after N calls (default: forever) |
