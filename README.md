@@ -37,6 +37,45 @@ starship, phone) by fictional artists (`courierhst/art.py`).
 
 Every board, handle, group, release title and door game is fictional.
 
+## Screenshots
+
+Rendered headlessly from the app's own output, not screen recordings.
+
+**Dial-in:** dial, `CONNECT`, the splash and login, up to the main menu, at real 14.4k speed.
+
+![Dialing in](docs/media/dialin.gif)
+
+**Browsing:** a G-Files text file painting in a page at a time.
+
+![Browsing G-Files](docs/media/browse.gif)
+
+**Goodbye:** the goodbye screen and `NO CARRIER`.
+
+![Goodbye and NO CARRIER](docs/media/goodbye.gif)
+
+The four board styles, each at its main menu:
+
+| Renegade | Telegard |
+|---|---|
+| ![Renegade-style main menu](docs/media/renegade.png) | ![Telegard-style main menu](docs/media/telegard.png) |
+| **Mystic** | **PCBoard** |
+| ![Mystic-style main menu](docs/media/mystic.png) | ![PCBoard-style main menu](docs/media/pcboard.png) |
+
+More:
+
+- ![A splash logo](docs/media/logo.png)  
+  A board's ANSI splash logo.
+- ![File areas with an ANSI art panel](docs/media/art.png)  
+  The file areas screen with an ANSI art panel.
+- ![A G-Files reader page](docs/media/gfiles.png)  
+  A G-Files reader page.
+- ![The terminal status bar](docs/media/statusbar.png)  
+  The terminal-program status bar under the 80x25 window.
+
+To regenerate them: `pip install '.[media]'`, then `python3 tools/render_media.py --out docs/media`.
+
+Font: Px437 IBM VGA 8x16 from The Ultimate Oldschool PC Font Pack by VileR (int10h.org), CC BY-SA 4.0 (licence in `tools/fonts/LICENSE.txt`).
+
 ## Install
 
 **Requirements:** Python 3.8+ on Linux, a terminal of at least 80x25, and a
@@ -65,7 +104,7 @@ python3 -m courierhst     # or run straight from the checkout, no install
 **Uninstall:** `./install.sh --uninstall`, or `pipx uninstall courierhst` /
 `pip uninstall courierhst`.
 
-**Optional extras:** `pip install '.[test]'` adds `pyte` for running the tests.
+**Optional extras:** `pip install '.[test]'` adds `pyte` and `Pillow` for running the tests; `pip install '.[media]'` is for regenerating the screenshots.
 
 ## Run
 

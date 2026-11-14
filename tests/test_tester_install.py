@@ -363,7 +363,8 @@ class Packaging(unittest.TestCase):
         self.assertIn("[project.scripts]", text)
         self.assertRegex(text, r'(?m)^courierhst\s*=\s*"courierhst\.__main__:main"')
         self.assertIn('requires-python = ">=3.8"', text)
-        self.assertRegex(text, r'test\s*=\s*\[\s*"pyte"\s*\]')
+        self.assertRegex(text, r'(?m)^test\s*=\s*\[\s*"pyte"\s*,\s*"Pillow"\s*\]')
+        self.assertRegex(text, r'(?m)^media\s*=\s*\[\s*"pyte"\s*,\s*"Pillow"\s*\]')
 
 
 class Readme(unittest.TestCase):
@@ -380,8 +381,9 @@ class Readme(unittest.TestCase):
         i = self.text.index("\n## Install\n")
         self.assertLess(i, self.text.index("\n## Run\n"))
         headings = re.findall(r"(?m)^## .*", self.text)
-        self.assertEqual(headings[0], "## Install")
-        self.assertEqual(headings[1], "## Run")
+        self.assertEqual(headings[0], "## Screenshots")
+        self.assertEqual(headings[1], "## Install")
+        self.assertEqual(headings[2], "## Run")
 
     def test_install_section_contents(self):
         s = self.section("## Install")
