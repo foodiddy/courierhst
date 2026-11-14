@@ -3,8 +3,8 @@
 import random
 import time
 
-from . import ansi, content, doors
-from .ansi import (box, center, elite, fade_bar, gradient_rule, key_hints, logo,
+from . import ansi, content, doors, logos
+from .ansi import (box, center, elite, fade_bar, gradient_rule, key_hints,
                    numbered_item, rpad, section_header)
 
 CLS = "\x0c"
@@ -49,6 +49,12 @@ class Board:
         self.role = rng.choice(content.BOARD_ROLES)
         self.modem = rng.choice(["USR HST Dual Standard 16.8",
                                  "USR Courier HST 14.4", "USR HST DS 14.4"])
+        # keep last: drawing from rng earlier would shift seeded values
+        self.logo_style = rng.choice(logos.STYLES)
+
+    def logo(self, text, width=78, max_rows=12):
+        """This board's logo for `text`, in the board's own look."""
+        return logos.render(text, self.palette, self.logo_style, width, max_rows)
 
     def time_left(self):
         used = (time.monotonic() - self.started) / 60.0
@@ -381,7 +387,7 @@ class Session:
         art = [CLS]
         art.append(fade_bar(78, (8, b.lo, b.hi, 15, b.hi, b.lo, 8)))
         art.append("")
-        art += logo(name.upper(), b.palette)
+        art += b.logo(name.upper(), max_rows=12)
         art.append("")
         art.append(gradient_rule(78, b.palette, "═"))
         tag = (f"|08[ |{b.hi:02d}{b.nodes}|07 node{'s' if b.nodes > 1 else ''} |08∙ "
@@ -731,7 +737,7 @@ class Session:
         art = [CLS, fade_bar(78, (8, b.lo, b.hi, 15, b.hi, b.lo, 8))]
         art += self.corners()
         art.append(" " * (78 - ansi.vlen(b.art_tag)) + b.art_tag)
-        art += logo(name.upper(), b.palette)
+        art += b.logo(name.upper(), max_rows=12)
         art.append(gradient_rule(78, b.palette, "═"))
         art.append(center(f"|07Sysop |15{b.sysop}  |08│  |07CoSysop |15{b.cosysop}"))
         art.append(center(f"|08{b.software} ∙ {b.city}, {b.state} ∙ "
@@ -1105,7 +1111,7 @@ class Session:
     def do_bye(self):
         L, b, r = self.line, self.b, self.rng
         self.ask("|07Log off now? |08(|15Y|08/|15n|08) |15", "Y")
-        bye = [CLS, ""] + logo(elite("Later"), b.palette) + [""]
+        bye = [CLS, ""] + b.logo(elite("Later"), max_rows=12) + [""]
         bye += [center(f"|07Thanks for calling |{b.hi:02d}{b.name}|07, {self.user}!"),
                 center(f"|07You were on for |15{max(1, int((time.monotonic() - b.started) / 60))}|07 minutes."),
                 "", center(fade_bar(40, (8, b.lo, b.hi, b.lo, 8))),
