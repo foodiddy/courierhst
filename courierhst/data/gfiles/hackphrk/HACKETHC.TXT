@@ -1,0 +1,52 @@
+  ########################################################################
+  ##                                                                    ##
+  ##          T H E   S P A R E   T I M E   M A N I F E S T O            ##
+  ##          written on a cold night by Cipher Moth, 1992              ##
+  ##                                                                    ##
+  ########################################################################
+
+  This is not THE manifesto. There are enough of those. This is a small one,
+  written on the back of a phone bill, for anyone who needs reminding.
+
+  1.  LEARN HOW THINGS WORK.
+      Take the lid off. If you can't take the lid off, read the manual. If
+      there is no manual, write one when you are done.
+
+  2.  SHARE WHAT YOU FIND.
+      A secret is a bug in a person. Pass the knowledge on.
+
+  3.  DO NOT BREAK WHAT YOU DO NOT OWN.
+      Looking is fine. Learning is better. Wrecking someone's work is the
+      mark of a lamer. If you crash it, you owe the owner an apology.
+
+  4.  DO NOT STEAL FROM THE LITTLE GUY.
+      The sysop who runs a board out of a spare bedroom pays the phone bill
+      from a paycheck. Be kind to them.
+
+  5.  JUDGE PEOPLE BY WHAT THEY KNOW AND DO.
+      Not by age, grades, haircut, size of their hard drive or how they
+      look in the school photo. Some of the best coders I know are fourteen.
+      Some are fifty-four.
+
+  6.  CURIOSITY IS NOT A CRIME.
+      It sometimes looks like one to people who haven't met it before.
+
+  7.  GIVE CREDIT.
+      Write your name on your own work. Never write it on someone else's.
+
+  8.  BE EXCELLENT.
+      Real skill is rare enough that you will recognize it at a glance.
+
+  9.  KNOW WHEN TO STOP.
+      The coolest thing a hacker can do is walk away from a thing that is
+      going to hurt someone, and leave a note explaining why.
+
+  10. TAKE OUT THE TRASH.
+      Close the doors you opened. Put the cables back. Log off cleanly.
+
+  ------------------------------------------------------------------------
+  If you agree with any of this, drop me a line. If you disagree, drop me a
+  better line. I am on The Wire Cellar, 555-0142, most nights after 11.
+
+  Pass it on. Edit it. Make it yours. Just leave the title off the copy
+  you improve so people know who to blame.

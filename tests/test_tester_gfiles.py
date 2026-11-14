@@ -37,6 +37,7 @@ STYLES = ["renegade", "telegard", "mystic", "pcboard"]
 NEEDS_PYTE = unittest.skipIf(pyte is None,
                              "pyte not installed (pip install '.[test]')")
 IS_ROOT = hasattr(os, "geteuid") and os.geteuid() == 0
+ORIGINAL = ["scene", "bbs", "rants", "misc"]
 PHONE = re.compile(r"\d{3}-\d{4}")
 HARMFUL = re.compile(
     r"\b(carding|card(ed)? number|credit card|calling card|blue ?box|red ?box|"
@@ -243,16 +244,20 @@ class Shipped(unittest.TestCase):
                 self.assertRegex(num, r"^555-01\d\d$", f["name"])
 
     def test_harmless_keywords(self):
+        # Part-1 sections only; hackphrk discusses boxes as history and has
+        # its own denylist in tests/test_tester_hackphrk.py.
         for s, f in self.files():
+            if s["folder"] not in ORIGINAL:
+                continue
             with open(f["path"], "rb") as fh:
                 text = fh.read().decode("cp437")
             self.assertIsNone(HARMFUL.search(text), f["name"])
 
     def test_three_or_four_per_section(self):
-        self.assertEqual([s["folder"] for s in self.secs],
-                         ["scene", "bbs", "rants", "misc"])
+        self.assertEqual([s["folder"] for s in self.secs][:4], ORIGINAL)
         for s in self.secs:
-            self.assertTrue(3 <= len(s["files"]) <= 4, s["folder"])
+            if s["folder"] in ORIGINAL:
+                self.assertTrue(3 <= len(s["files"]) <= 4, s["folder"])
 
     def test_upper_case_names(self):
         for s, f in self.files():

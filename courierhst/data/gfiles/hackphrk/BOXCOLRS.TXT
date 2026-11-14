@@ -1,0 +1,40 @@
+  .--------------------------------------------------------------.
+  |      THE GREAT RAINBOW OF BOXES (a tongue-in-cheek list)     |
+  |             compiled by Hex Marks The Spot  1991             |
+  `--------------------------------------------------------------'
+
+  Every phreak file ever written has a "box" list. This one has a few
+  real names, a few fake, and no instructions, because we are not
+  that kind of file. Sort the true from the false yourself.
+
+  BLUE BOX     The famous one. Played with the long-distance trunks
+               back when they listened. Retired by newer signalling.
+  RED BOX      Payphone pranks. See REDBOX.TXT. Also retired.
+  BLACK BOX    Said to make callers' calls free for the person who
+               picked up. A bit of a legend, a bit of a rumor.
+  BEIGE BOX    A lineman's handset. Phone company people used them every
+               day. Hobbyists mostly wished they had one.
+  GREEN BOX    Rumored. Nobody I trust has ever seen one.
+  ORANGE BOX   Rumored too. Probably the same guy telling both stories.
+
+  -- THE JOKE SHELF ----------------------------------------------------
+
+  PLAID BOX    Only works when worn with a matching flannel shirt.
+  BROWN BOX    Does nothing at all, but arrives on time.
+  PURPLE BOX   Plays the hold music from your dentist's office.
+  CHARTREUSE   Nobody can spell it. Nobody has built it either.
+  MAGENTA BOX  Hums quietly and increases your phone bill.
+  PIZZA BOX    The only box that has ever produced a result. Free
+               delivery in 30 minutes or less; call 555-0177.
+  SHOE BOX     Holds everything else on this list when you move.
+  BLACK-AND-WHITE BOX   Technically a cow.
+  BEIGE BOX (2) What every PC was, 1983 to 1995. Pure fact.
+
+  -- LEGEND ---------------------------------------------------------------
+
+  Where a color box once did something, it did it on a network that has
+  since been rebuilt. Where it never did anything, it did it in somebody's
+  head. The best box was always the one that was never built.
+
+  Suggestions for new boxes go to Hex Marks The Spot on any board.
+  Please do not mail me a real one. I will not know what to do with it.

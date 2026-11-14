@@ -1,0 +1,66 @@
+ .--------------------------------------------------------------------------.
+ |   A SHORT HISTORY OF THE PHONE PHREAKS  --  by The Silent Dialer  v1.2   |
+ `--------------------------------------------------------------------------'
+
+  every board has a "history" file. most of them are wrong. this one is
+  only mostly wrong. corrections go to me, mail on any board that will still
+  have me.
+
+  [ 1. THE WHISTLERS ]
+
+  Before there were modems there were kids with very good ears. A boy named
+  Joe Engressia, blind from birth, found he could whistle at a phone line
+  and the phone company's equipment would answer him. He later took the
+  name Joybubbles and spent his life being cheerful at everybody. The
+  world needs more of that.
+
+  Around the same time a toy whistle packed in a box of Cap'n Crunch cereal
+  became a legend. The man who made it famous, John Draper, picked up the
+  handle "Captain Crunch" and never really got rid of it. Breakfast food
+  has a lot to answer for.
+
+  [ 2. THE ARTICLE ]
+
+  In October 1971 Esquire ran "Secrets of the Little Blue Box" by Ron
+  Rosenbaum. Overnight every teenager in America wanted to be a phreak, and
+  every phone company lawyer wanted a word with them. It is the best advert
+  the hobby ever got and the worst thing that ever happened to it.
+
+  Around then two Californians named Steve Wozniak and Steve Jobs sold
+  little blue boxes in dorm rooms. Yes, THOSE two. Then they went off and
+  made computers instead. Moral: the hobby is a fine place to start.
+
+  [ 3. THE NEWSLETTERS ]
+
+  1971   Youth International Party Line starts. Later it becomes TAP, the
+         Technological American Party, and then the Technical Assistance
+         Program. Photocopied, stapled, mailed in brown envelopes.
+  1984   2600 magazine begins. Quarterly, thick, and still printed on paper
+         while everybody else went to disk.
+  1985   Phrack, the electronic magazine, goes up on a board in Missouri.
+         Free to read, free to pass around, which was the whole idea.
+
+  [ 4. THE CRACKDOWN ]
+
+  By 1990 the law was tired of being laughed at. In May that year the
+  Secret Service ran Operation Sundevil across many cities. Computers were
+  carried out of bedrooms in cardboard boxes. Plenty of parents learned a
+  new word that week and it was "modem".
+
+  Around the same time came the E911 document case. A text file about the
+  phone company's emergency system moved from board to board and landed in
+  Phrack. The publisher, a student called Knight Lightning, was charged. The
+  case fell apart when it turned out the "secret" document was sold to the
+  public for a few dollars. Everybody learned something. The phone company
+  learned to check the price list.
+
+  [ 5. THE POINT ]
+
+  Phreaking was never really about free calls. It was about curiosity: a
+  giant machine strung across a continent, and someone asking "what does
+  this do?" The calls were just the receipt.
+
+  If you want to read the old files, read them as history. The network they
+  talk about has been gone for years and nobody is coming back for it.
+
+  -- The Silent Dialer         [ call The Wire Cellar: 555-0142, 2400 baud ]

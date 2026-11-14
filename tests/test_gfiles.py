@@ -25,10 +25,10 @@ class Loader(unittest.TestCase):
     def test_shipped_sections(self):
         secs = gfiles.load()
         self.assertEqual([s["folder"] for s in secs],
-                         ["scene", "bbs", "rants", "misc"])
+                         ["scene", "bbs", "rants", "misc", "hackphrk"])
         self.assertEqual([s["title"] for s in secs],
                          ["Scene & NFOs", "BBS Lists & Ads",
-                          "Rants & Editorials", "Humor & Misc"])
+                          "Rants & Editorials", "Humor & Misc", "Hackphrk"])
         for s in secs:
             self.assertGreaterEqual(len(s["files"]), 3, s["folder"])
             for f in s["files"]:

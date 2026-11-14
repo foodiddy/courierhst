@@ -1,0 +1,46 @@
+  ::: THE NIGHT I DIALED ALL OF HICKSVILLE :::
+      a true(ish) story by Pixel Poet, age 15 at the time
+
+  It started in the summer of '91. I had a 2400 baud modem, a free
+  weekend and parents who were at my aunt's. Perfect storm.
+
+  The idea was simple. Our town had one exchange, 555, and every number in
+  the 01xx block belonged to someone. So I wrote a little program in BASIC
+  that dialed the numbers one by one and wrote down which ones answered
+  with a funny noise instead of a person.
+
+  Rules I set myself: never call after 10 pm; hang up on anybody who says
+  hello; never touch anything that wasn't mine to touch. That last one turns
+  out to be the most important.
+
+  Here is the log from my notebook:
+
+     555-0101   a person (hung up fast, felt bad)
+     555-0104   answering machine, a man singing opera
+     555-0111   a very angry dog
+     555-0123   MODEM! it was Dr. Ledger's dental office, billing system.
+                I said nothing and went away. (Took a long shower after.)
+     555-0131   a fax. It screamed at me for thirty seconds.
+     555-0142   A BBS!! The Wire Cellar, run by a guy called Cipher Moth.
+     555-0150   nobody home
+     555-0166   the school attendance computer. It asked for a password.
+                I know that password is not "password" because I tried
+                it, and I was wrong, and I got scared and logged out.
+     555-0177   Tony's Pizza. I ordered a large pepperoni.
+
+  The Wire Cellar was the real prize. I called it at 2400 baud and got
+  a blue login screen, a message that said "Welcome, new user!", and a
+  menu with files and messages. Within a week I was in the scene, and
+  within a month I had a handle.
+
+  The attendance computer worried me, though. I wrote an anonymous note and
+  put it on the principal's desk: "Your attendance machine answers the phone.
+  Please give it a password a kid can't guess." They fixed it by Friday and
+  nobody ever asked who wrote the note. The principal's name was Mr. Gruber
+  and he thanked me, years later, at a school reunion.
+
+  What I learned, in one line: the interesting thing about a phone number
+  isn't who picks up. It's what they do when you tell them kindly.
+
+  Total cost of the weekend: one pizza, one scared stomach and a lifelong
+  hobby. Would do again, with more cheese.
