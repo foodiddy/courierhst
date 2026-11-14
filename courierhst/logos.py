@@ -160,8 +160,9 @@ def _chunky_width(line):
 
 
 def _chunky_rows(line, pal):
+    """Chunky letters: half-block pixels with a grey drop shadow."""
     px = _chunky_pixels(line)
-    w = len(px[0]) + 1
+    w = len(px[0]) + 1  # +1 column for the shadow
     grid = [[None] * w for _ in range(8)]
     for y in range(7):
         col = pal[y * len(pal) // 7]
@@ -184,6 +185,7 @@ def _dither_width(line):
 
 
 def _dither_rows(line, pal):
+    """Six rows: half blocks on top, then shade blocks fading out below."""
     px = _chunky_pixels(line)
     w = len(px[0]) + 1
     cells = [[None] * w for _ in range(6)]
@@ -197,7 +199,7 @@ def _dither_rows(line, pal):
             if px[4 + k][x]:
                 col = pal[(4 + k) * len(pal) // 7]
                 cells[2 + k][x] = f"|{col:02d}|16{_SHADES[k]}"
-    solid = [row[:] for row in cells]
+    solid = [row[:] for row in cells]  # snapshot, so shadow can't spawn shadow
     for r in range(1, 6):
         for x in range(1, w):
             if cells[r][x] is None and solid[r - 1][x - 1] is not None:
@@ -232,6 +234,7 @@ def _line_width(line):
 
 
 def _line_rows(line, pal):
+    """Line-art rows, bright at the edges and darkening toward the middle."""
     rows = [" ".join(_LINE[c][y] for c in line) for y in range(4)]
     w = len(rows[0])
     last = len(pal) - 1
@@ -262,6 +265,7 @@ _ENGINES = {
 
 
 def _try_style(style, text, pal, width, max_rows):
+    """Render in one style, or None if it will not fit in `max_rows`."""
     measure, draw, height = _ENGINES[style]
     words = text.split()
     if not words:
