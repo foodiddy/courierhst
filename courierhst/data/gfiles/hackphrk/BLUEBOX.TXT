@@ -1,0 +1,53 @@
+ ___  _    _   _ ___   ___   _____  __
+| _ )| |  | | | | __| | _ ) / _ \ \/ /     THE BLUE BOX: A HISTORY LESSON
+| _ \| |__| |_| | _|  | _ \| (_) >  <      by Static Hiss / Pale Horse Syn
+|___/|____|\___/|___| |___/ \___/_/\_\
+
+  Disclaimer: this is a HISTORY file. There are no plans in here, no parts
+  lists, and nothing that would work today. The thing it describes was
+  retired before most of you had your first modem. Read, enjoy, move on.
+
+  -----------------------------------------------------------------------
+
+  WHAT IT WAS
+
+  In the old long-distance network the machines that connected your call
+  talked to each other over the very same wire that carried your voice.
+  Instructions like "this trunk is free" or "hang up now" were sent as
+  musical beeps, in the open, mixed in with the conversation.
+
+  That is called IN-BAND signalling. It was cheap, it was clever, and it
+  had one enormous flaw: anyone who could make the right noise at the
+  right moment could talk to the switch as if they were the switch.
+
+  A "blue box" was a gadget that made those noises. That is all I am going
+  to say about how. Anyone who tells you more is selling something, or is
+  lying, or is a very bored teenager in 1987.
+
+  WHY IT WORKED
+
+  The people who designed the system trusted every user to be a customer.
+  Nobody imagined a kid on the other end of the line playing the network
+  like a piano. The trust was built into the wires.
+
+  WHY IT DIED
+
+  The phone company moved the control messages OFF the voice path and onto
+  a separate data channel that customers never touch. Different names
+  over different years: first CCIS, later the big system called SS7.
+
+  Out-of-band signalling means the beeps in your ear are only beeps in
+  your ear. The switch is not listening to you any more. That was the end.
+  By the early 1990s the old trunks were mostly gone and the boxes were
+  museum pieces.
+
+  WHAT WE KEPT
+
+  Hackers learned the real lesson: never put the controls where the
+  customers can reach them. The lesson was so good that the phone company
+  and every software house had to learn it too.
+
+  Thanks to: the guys on the old conference bridges, who taught me to
+  listen. Greets to everyone at the Wire Cellar, 555-0142.
+
+            "Everything is a protocol if you stare at it long enough."
