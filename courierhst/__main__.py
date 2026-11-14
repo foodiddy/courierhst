@@ -32,7 +32,7 @@ def main(argv=None):
                    help="draw at top-left instead of centering 80x25")
     p.add_argument("--no-status", action="store_true",
                    help="hide the terminal-program status bar")
-    p.add_argument("--noise", type=float, default=0.0015,
+    p.add_argument("--noise", type=float, default=0.0007,
                    help="line-noise probability per character (0 disables)")
     p.add_argument("--xfer-speedup", type=float, default=40.0,
                    help="time compression for Zmodem downloads (1 = real time)")
