@@ -32,6 +32,9 @@ the 5x5 half-block letters, chunky 7-row letters with a drop shadow, chunky
 letters dithered with `░▒▓` towards the bottom, or thin line-art lettering
 made of `/ \ _ |` (`courierhst/logos.py`).
 
+The boards also show original ANSI art pieces (skull, modem, floppy, dragon,
+starship, phone) by fictional artists (`courierhst/art.py`).
+
 Every board, handle, group, release title and door game is fictional.
 
 ## Run
