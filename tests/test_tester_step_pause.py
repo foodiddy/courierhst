@@ -25,7 +25,6 @@ class RecLine:
         self.online_since = None
         self.status_name = ""
         self.connect_speed = ""
-        self.offline_msg = ""
         self.dialing = False
         self.warp = 1.0
         self.cps = 1e9
