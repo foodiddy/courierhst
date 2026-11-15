@@ -105,7 +105,8 @@ class Help(unittest.TestCase):
 
     def test_description(self):
         self.assertIn("Screensaver: dial up early-90s warez BBSes on a 14.4 USR "
-                      "Courier HST. Any key exits.", self.help_text())
+                      "Courier HST. Keys: d = dialer, b = BBS, any other key exits.",
+                      self.help_text())
 
 
 if __name__ == "__main__":
