@@ -31,7 +31,15 @@ NOISE_CHARS = "}{~`#$@^&*![]|\\°ñæ«»▓∙"
 
 
 class KeyPressed(Exception):
-    """Raised when the viewer touches the keyboard: screensaver over."""
+    """Raised when the viewer touches the keyboard."""
+
+    def __init__(self, key=""):
+        super().__init__(key)
+        self.key = key  # one character, or "" if unknown
+
+
+class Rotate(Exception):
+    """Raised when the --rotate deadline passes: time for the other screen."""
 
 
 class Line:
@@ -46,6 +54,7 @@ class Line:
         self.status_enabled = status
         self.noise = noise
         self.exit_on_key = exit_on_key
+        self.rotate_at = None  # time.monotonic() deadline for --rotate
         self.out = out or sys.stdout
         self.fd_in = sys.stdin.fileno() if sys.stdin.isatty() else None
         self._old_tc = None
@@ -216,22 +225,36 @@ class Line:
             if self._resized:
                 self._layout()
             now = time.monotonic()
+            if self.rotate_at is not None and now >= self.rotate_at:
+                raise Rotate()
             if now - self._last_status >= 1.0:
                 self._draw_status()
                 self._flush()
             left = t - now
             if left <= 0:
                 return
-            self._check_key(min(left, 0.25))
+            step = min(left, 0.25)
+            if self.rotate_at is not None:
+                step = min(step, max(0.0, self.rotate_at - now))
+            self._check_key(step)
 
     def _check_key(self, timeout):
-        """Wait up to `timeout` seconds; any keypress ends the show."""
-        if self.fd_in is None or not self.exit_on_key:
+        """Wait up to `timeout` seconds; a keypress raises KeyPressed.
+
+        With exit_on_key off only d and b get through (screen switches).
+        """
+        if self.fd_in is None:
             time.sleep(timeout)
             return
         r, _, _ = select.select([self.fd_in], [], [], timeout)
-        if r:
-            raise KeyPressed()
+        if not r:
+            return
+        data = os.read(self.fd_in, 1)
+        key = data.decode("latin-1")
+        if not key:  # EOF: nothing to act on, don't spin
+            time.sleep(timeout)
+        elif self.exit_on_key or key in "dDbB":
+            raise KeyPressed(key)
 
     def pause(self, seconds):
         """Idle on the line (BBS thinking, user reading the screen)."""
