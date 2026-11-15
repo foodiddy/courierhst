@@ -60,6 +60,7 @@ class Line:
         self.status_name = ""
         self.connect_speed = ""
         self.dialing = False
+        self.status_text = None  # when a string, shown instead of the modem state
 
     # ------------------------------------------------------------------ setup
     def __enter__(self):
@@ -161,6 +162,13 @@ class Line:
         for tok in _TOKEN_RE.findall(ansi.pipe_to_ansi(text, self._state)):
             self._raw(self._translate(tok))
         self._flush()
+
+    def at(self, row, col, text):
+        """Draw pipe-coded one-line `text` at window row/col (both 1-based)."""
+        if not 1 <= row <= self.height:
+            return
+        self._raw(f"\x1b[{self.top + row - 1};{self.left + col}H")
+        self.local(text)
 
     def _translate(self, tok):
         """Map BBS-side control tokens onto the centred local window."""
@@ -269,7 +277,9 @@ class Line:
         width = min(BBS_COLS, self.cols) - 1  # never write the last column
         name = self.status_name
         tail = " | ALT-Z for menu"
-        if self.online_since is not None:
+        if self.status_text is not None:
+            text = " " + self.status_text
+        elif self.online_since is not None:
             e = int(now - self.online_since)
             mid = (f" | 14400/ARQ/HST | Connected: "
                    f"{e // 3600:02d}:{e % 3600 // 60:02d}:{e % 60:02d}")
