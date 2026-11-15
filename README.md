@@ -55,6 +55,12 @@ Rendered headlessly from the app's own output, not screen recordings.
 
 ![Goodbye and NO CARRIER](docs/media/goodbye.gif)
 
+**Dialer:** the GRiDSWEEP screen part-way through a scan, with the heatmap filling in.
+
+![GRiDSWEEP dialer, animated](docs/media/dialer.gif)
+
+![GRiDSWEEP dialer part-way through a scan](docs/media/dialer.png)
+
 The four board styles, each at its main menu:
 
 | Renegade | Telegard |
@@ -124,7 +130,7 @@ python3 -m courierhst          # from the repo, no dependencies
 courierhst
 ```
 
-Press any key to exit.
+Press any key to exit (`d` and `b` switch screens; see Dialer screensaver).
 
 | option | |
 |---|---|
@@ -138,12 +144,36 @@ Press any key to exit.
 | `--step-pause SECONDS` | seconds the caller lingers before each next step: menu command, message, file prompt, door move (default 5, 0 disables; `--warp` scales it) |
 | `--warp X` | speed everything up (for previewing) |
 | `--board-style S` | force the BBS software style: `renegade`, `telegard`, `mystic` or `pcboard` (default: random mix) |
-| `--no-exit-on-key` | only Ctrl-C exits |
+| `--bbs` / `--dialer` | start on the BBS (default) or the GRiDSWEEP dialer screen |
+| `--rotate MINUTES` | swap between the two screens every MINUTES minutes |
+| `--no-exit-on-key` | only Ctrl-C exits (`d` and `b` still switch screens) |
 
 The art uses CP437 block and box characters, which the Linux console's
 default fonts and any modern terminal font can display. For the authentic
 look, use a VGA font (e.g. `setfont` with a `Lat2-VGA16` / `default8x16` font
 on the console).
+
+## Dialer screensaver
+
+The second screensaver is **GRiDSWEEP**, an invented 1993 number-scan program:
+a stats panel, the number being dialed, a 10x10 heatmap that fills in as each
+number comes back busy, voice, no answer, carrier or tone, and a scrolling
+log. It is a pure animation. It never touches a modem, port or network and
+makes no real calls. Every number it shows is a fictional 555-01xx one and
+every result is made up.
+
+Keys:
+
+- `d`: switch to the dialer
+- `b`: switch to the BBS
+- any other key exits (with `--no-exit-on-key`, only `d` and `b` do anything)
+
+Options (one example each):
+
+- `--bbs`: start on the BBS screen (the default), e.g. `courierhst --bbs`
+- `--dialer`: start on the dialer screen, e.g. `courierhst --dialer`
+- `--rotate MINUTES`: swap between the two screens every MINUTES minutes,
+  e.g. `courierhst --dialer --rotate 10`
 
 ## Use it as a screensaver
 

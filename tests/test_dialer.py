@@ -175,6 +175,23 @@ class DialerTests(unittest.TestCase):
         self.assertIsNone(line.status_text)
 
 
+class Footer(unittest.TestCase):
+    TEXT = "Simulated scan: every number and result is made up."
+
+    def test_footer_shown_at_24_and_25(self):
+        for height in (24, 25):
+            with self.subTest(height=height):
+                line = FakeLine()
+                line.height = height
+                d = Dialer(line, random.Random(1))
+                d._draw_all()
+                rows = {o[1]: ansi.strip(o[3]) for o in line.texts()}
+                hits = [r for r, t in rows.items() if self.TEXT in t]
+                self.assertEqual(hits, [height])
+                for o in line.texts():
+                    self.assertLessEqual(o[1], height)
+
+
 class LineAdditions(unittest.TestCase):
     def make(self):
         out = io.StringIO()

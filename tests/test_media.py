@@ -17,7 +17,8 @@ SCRIPT = os.path.join(ROOT, "tools", "render_media.py")
 MEDIA = os.path.join(ROOT, "docs", "media")
 EXPECTED = ["dialin.gif", "browse.gif", "goodbye.gif", "renegade.png",
             "telegard.png", "mystic.png", "pcboard.png", "logo.png",
-            "art.png", "gfiles.png", "statusbar.png"]
+            "art.png", "gfiles.png", "statusbar.png",
+            "dialer.png", "dialer.gif"]
 
 
 @unittest.skipIf(Image is None, "Pillow and pyte are needed (pip install '.[media]')")

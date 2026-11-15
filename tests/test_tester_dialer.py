@@ -395,7 +395,9 @@ class Resume(unittest.TestCase):
         # the whole screen is redrawn before any waiting
         first_pause = next(i for i, e in enumerate(after) if e[0] == "pause")
         rows = {e[1] for e in after[:first_pause] if e[0] == "at"}
-        self.assertTrue(set(range(1, 25)) <= rows, sorted(rows))
+        # DIAL-3: log box ends at row 23, footer at min(25, height)
+        want = set(range(1, 24)) | {min(25, line.height)}
+        self.assertTrue(want <= rows, sorted(rows))
         painted = "\n".join(ansi.strip(e[3]) for e in after[:first_pause]
                             if e[0] == "at")
         self.assertIn("GRiDSWEEP", painted)
