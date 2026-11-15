@@ -28,7 +28,7 @@ NAMES = {"busy": "Busy", "voice": "Voice", "noanswer": "No answer",
 NOANSWER_SECS = 25   # ring-out time for a number nobody picks up
 HOLD_SECS = 1.0      # result stays on the current-number line this long
 SUMMARY_SECS = 8
-LOG_ROWS = 5
+LOG_ROWS = 4
 
 
 def new_area(rng):
@@ -219,10 +219,10 @@ class Dialer:
         L.at(17, 41, _bottom(39))
         # log
         L.at(18, 1, _top(79, "LOG"))
-        for r in range(19, 24):
+        for r in range(19, 23):
             L.at(r, 1, _row("", 79))
-        L.at(24, 1, _bottom(79))
-        L.at(25, 2, "|08Simulated scan: every number and result is made up."
+        L.at(23, 1, _bottom(79))
+        L.at(min(25, L.height), 2, "|08Simulated scan: every number and result is made up."
                     "|07|16")
         for r in range(10):
             self._draw_hm_row(r)

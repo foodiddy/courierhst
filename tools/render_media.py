@@ -324,7 +324,7 @@ def last_screen(chunks):
 
 
 def shot_png(name, seed, style, needles, rows=None, warp=30, idle=3.0,
-             exact=False, extra=0):
+             exact=False, extra=0, dialer=False):
     """PNG of the screen once `needles` are all on screen.
 
     exact=True snapshots at the first byte where they all show; otherwise the
@@ -332,7 +332,8 @@ def shot_png(name, seed, style, needles, rows=None, warp=30, idle=3.0,
     """
     def job(out):
         chunks = capture(seed, style, warp, stop=has(*needles),
-                         idle=None if exact else idle)
+                         idle=None if exact else idle,
+                         extra=DIALER_ARGS if dialer else ())
         screen = first_match(chunks, needles, extra) if exact else last_screen(chunks)
         if screen is None or not has(*needles)(screen):
             raise SystemExit(f"{name}: {needles!r} never appeared")
@@ -341,7 +342,7 @@ def shot_png(name, seed, style, needles, rows=None, warp=30, idle=3.0,
 
 
 def shot_gif(name, seed, style, start=None, end=None, stop=None, dt=0.15,
-             warp=5, hold=2.0, cap=2.5):
+             warp=5, hold=2.0, cap=2.5, dialer=False):
     """Animated GIF: the screen sampled every `dt` simulated seconds.
 
     The window opens when text `start` is on screen (default: the first
@@ -351,13 +352,16 @@ def shot_gif(name, seed, style, start=None, end=None, stop=None, dt=0.15,
     """
     def job(out):
         chunks = capture(seed, style, warp, stop=stop and has(stop),
-                         idle=hold if stop else None)
+                         idle=hold if stop else None,
+                         extra=DIALER_ARGS if dialer else ())
         frs = frames(chunks, dt, start, end, hold, cap)
         if len(frs) < 2:
             raise SystemExit(f"{name}: fewer than 2 frames")
         write_gif(os.path.join(out, name + ".gif"), frs)
     return job
 
+
+DIALER_ARGS = ("--dialer",)
 
 # PNGs run at a high --warp: only the content matters there, and the status
 # bar's wall-clock "Connected" timer then stays at 00:00:00 or 01.
@@ -395,6 +399,16 @@ register("gfiles", shot_png("gfiles", 22, "telegard", ["Page 1 of", "BOXCOLRS"],
 register("statusbar", shot_png("statusbar", 1, "telegard",
                                ["[Main Menu]", "Time Left"], rows=(22, 26),
                                warp=FAST, exact=True))
+
+# The dialer ignores --calls, so these end on screen text, not on a call count.
+# Seed 21 puts two CARRIER hits among the first ten numbers.
+DIALER_SEED = 21
+register("dialer.png", shot_png("dialer", DIALER_SEED, "renegade",
+                                ["CARRIER", "Dialed       10"], warp=50,
+                                idle=0.9, dialer=True))
+register("dialer.gif", shot_gif("dialer", DIALER_SEED, "renegade",
+                                stop="00:00:35", hold=0.5, cap=0.3,
+                                dialer=True))
 
 
 def main(argv=None):

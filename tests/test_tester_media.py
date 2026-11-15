@@ -210,7 +210,8 @@ class Palette(unittest.TestCase):
 class Committed(unittest.TestCase):
     EXPECTED = {"dialin.gif", "browse.gif", "goodbye.gif", "renegade.png",
                 "telegard.png", "mystic.png", "pcboard.png", "logo.png",
-                "art.png", "gfiles.png", "statusbar.png"}
+                "art.png", "gfiles.png", "statusbar.png",
+                "dialer.png", "dialer.gif"}
 
     def test_exact_file_set(self):
         self.assertEqual(set(os.listdir(MEDIA)), self.EXPECTED | {"header.jpg"})
