@@ -41,6 +41,12 @@ Rendered headlessly from the app's own output.
 ![GRiDSWEEP dialer, animated](docs/media/dialer.gif)
 ![GRiDSWEEP dialer part-way through a scan](docs/media/dialer.png)
 
+**GRiDSWEEP** is an invented 1993 number-scan animation: a stats panel, the
+number being dialed, a 10x10 results heatmap and a scrolling log. Simulation
+only: it never touches a modem, port or network and makes no real calls. Every
+number is a fictional 555-01xx one. Try `courierhst --bbs`,
+`courierhst --dialer` or `courierhst --dialer --rotate 10`.
+
 The four board styles, each at its main menu:
 
 | Renegade | Telegard |
@@ -104,7 +110,7 @@ courierhst                # once installed (see Install)
 python3 -m courierhst     # from the repo, no dependencies
 ```
 
-Press any key to exit; `d` and `b` switch screens (see Dialer screensaver).
+Press any key to exit; `d` and `b` switch screens.
 
 | option | |
 |---|---|
@@ -118,19 +124,8 @@ Press any key to exit; `d` and `b` switch screens (see Dialer screensaver).
 | `--step-pause SECONDS` | seconds the caller lingers before each next step: menu command, message, file prompt, door move (default 5, 0 disables; `--warp` scales it) |
 | `--warp X` | speed everything up (for previewing) |
 | `--board-style S` | force the BBS software style: `renegade`, `telegard`, `mystic` or `pcboard` (default: random mix) |
-| `--bbs` / `--dialer` / `--rotate MINUTES` | choose the start screen / swap screens every MINUTES (see Dialer screensaver) |
+| `--bbs` / `--dialer` / `--rotate MINUTES` | choose the start screen / swap screens every MINUTES |
 | `--no-exit-on-key` | only Ctrl-C exits (`d` and `b` still switch screens) |
-
-## Dialer screensaver
-
-**GRiDSWEEP** is an invented 1993 number-scan animation: a stats panel, the
-number being dialed, a 10x10 results heatmap and a scrolling log. Simulation
-only: it never touches a modem, port or network and makes no real calls. Every
-number is a fictional 555-01xx one.
-
-- `d` switches to the dialer, `b` to the BBS; any other key exits
-- `courierhst --bbs` / `courierhst --dialer`: choose the start screen
-- `courierhst --dialer --rotate 10`: start on the dialer, swap every 10 minutes
 
 ## Use it as a screensaver
 
