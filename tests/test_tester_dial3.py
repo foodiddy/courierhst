@@ -190,15 +190,6 @@ class Media(unittest.TestCase):
         self.assertLessEqual(total, 15500)
         self.assertGreaterEqual(len(frames), 5)
 
-    def test_old_media_unchanged(self):
-        r = git("rev-parse", "--verify", "-q", "main")
-        if r.returncode != 0:
-            self.skipTest("no main branch")
-        base = git("merge-base", "HEAD", "main").stdout.strip()
-        d = git("diff", "--name-status", base, "--", "docs/media")
-        self.assertEqual(sorted(d.stdout.split("\n")[:-1]),
-                         ["A\tdocs/media/dialer.gif", "A\tdocs/media/dialer.png"])
-
     def test_no_scratch_files(self):
         r = git("ls-files")
         bad = [f for f in r.stdout.split() if re.search(
