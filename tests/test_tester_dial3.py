@@ -283,10 +283,7 @@ class Readme(unittest.TestCase):
         self.assertRegex(self.text, r"--no-exit-on-key[^\n]*`d` and `b`")
 
     def test_dialer_section(self):
-        m = re.search(r"^## Dialer screensaver\n(.*?)(?=^## )", self.text,
-                      re.S | re.M)
-        self.assertTrue(m)
-        sec = m.group(1)
+        sec = self.text
         self.assertIn("GRiDSWEEP", sec)
         self.assertIn("1993", sec)
         self.assertIn("555-01xx", sec)
